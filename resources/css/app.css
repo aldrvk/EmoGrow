@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+/* ==========================================
+   1. TOKEN UTAMA & ENFORCEMENT SHADCN
+   ========================================== */
+@theme {
+  /* Token Fisik Berdasarkan JSON Figma */
+  --color-primary: #f472b6;
+  --color-secondary: #60a5fa;
+  --color-netral: #64748b;
+  --color-background: #f8f6f6;
+  --color-white: #ffffff;
+
+  --font-sans: "Manrope", sans-serif;
+  --font-manrope: "Manrope", sans-serif;
+  
+  /* Sinkronisasi Variabel Komponen Shadcn */
+  --color-foreground: var(--color-netral);
+  --color-card: var(--color-white);
+  --color-card-foreground: var(--color-netral);
+  --color-popover: var(--color-white);
+  --color-popover-foreground: var(--color-netral);
+
+  --color-muted: #f1f5f9; 
+  --color-muted-foreground: var(--color-netral);
+  --color-accent: var(--color-background); 
+  --color-accent-foreground: var(--color-netral);
+
+  --color-border: var(--color-netral); 
+  --color-input: var(--color-netral);
+  --color-ring: var(--color-primary);  
+
+  --color-primary-foreground: var(--color-white);
+  --color-secondary-foreground: var(--color-white);
+}
+
+/* ==========================================
+   2. CONFIGURATION BASE LAYER
+   ========================================== */
+@layer base {
+  body {
+    background-color: var(--color-background);
+    font-family: var(--font-manrope);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    letter-spacing: 0.35px;
+    color: var(--color-netral);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  *, ::after, ::before {
+    border-color: var(--color-border);
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, fill 0.3s ease, stroke 0.3s ease, opacity 0.3s ease;
+  }
+
+  /* Kunci Override untuk Mode Gelap */
+  .dark {
+    --color-background: #0f172a; 
+    --color-white: #1e293b;      
+    
+    --color-netral: #cbd5e1;     
+    --color-foreground: #f8fafc; 
+    
+    --color-muted: #334155;      
+    --color-muted-foreground: #94a3b8; 
+    --color-accent: #334155;     
+    --color-accent-foreground: #f8fafc;
+    
+    --color-border: #334155;     
+    --color-input: #334155;      
+    
+    --color-primary: #f472b6;    
+    --color-secondary: #60a5fa;  
+  }
+
+  /* Pemetaan Otomatis Elemen Header HTML */
+  h1 { font-family: var(--font-manrope); font-size: 40px; font-weight: 700; line-height: 40px; letter-spacing: -0.32px; }
+  h2 { font-family: var(--font-manrope); font-size: 30px; font-weight: 700; line-height: 32px; letter-spacing: 0px; }
+  h3 { font-family: var(--font-manrope); font-size: 24px; font-weight: 700; line-height: 32px; letter-spacing: 0px; }
+  h4 { font-family: var(--font-manrope); font-size: 20px; font-weight: 700; line-height: 32px; letter-spacing: 0px; }
+}
+
+/* ==========================================
+   3. CUSTOM UTILITY CLASSES FOR TYPOGRAPHY
+   ========================================== */
+@utility text-large-text { font-family: var(--font-manrope); font-size: 20px; font-weight: 700; line-height: 28px; letter-spacing: 0px; }
+@utility text-body-thin { font-family: var(--font-manrope); font-size: 14px; font-weight: 400; line-height: 20px; letter-spacing: 0px; }
+@utility text-section-title { font-family: var(--font-manrope); font-size: 24px; font-weight: 600; line-height: 32px; letter-spacing: 0px; }
+@utility text-body-bold { font-family: var(--font-inter); font-size: 14px; font-weight: 600; line-height: 20px; letter-spacing: 0.14px; }
+@utility text-label-text { font-family: var(--font-inter); font-size: 12px; font-weight: 500; line-height: 16px; letter-spacing: 0px; }
+@utility text-cta-text { font-family: var(--font-manrope); font-size: 14px; font-weight: 600; line-height: 20px; letter-spacing: 0.14px; }
+@utility text-cta-text-bold { font-family: var(--font-manrope); font-size: 14px; font-weight: 700; line-height: 20px; letter-spacing: 0.14px; }
+@utility text-small-text { font-family: var(--font-manrope); font-size: 12px; font-weight: 400; line-height: 15px; letter-spacing: -0.25px; }
