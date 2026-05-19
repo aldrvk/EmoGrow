@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { LayoutDashboard, Users, BookOpen, Activity, LineChart, FileText, LogOut, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
 
 interface SidebarProps {
     isOpen?: boolean;
@@ -7,12 +8,12 @@ interface SidebarProps {
 }
 
 const menuItems = [
-    { name: 'Dashboard', active: true, icon: LayoutDashboard },
-    { name: 'Screening Anak', icon: Users },
-    { name: 'Edukasi', icon: BookOpen },
-    { name: 'Aktivitas', icon: Activity },
-    { name: 'Monitoring', icon: LineChart },
-    { name: 'Laporan Evaluasi', icon: FileText },
+    { name: 'Dashboard', route: '/', icon: LayoutDashboard },
+    { name: 'Screening Anak', route: '/screening-anak', icon: Users },
+    { name: 'Edukasi', route: '/edukasi', icon: BookOpen },
+    { name: 'Aktivitas', route: '/aktivitas', icon: Activity },
+    { name: 'Monitoring', route: '/monitoring', icon: LineChart },
+    { name: 'Laporan Evaluasi', route: '/laporan-evaluasi', icon: FileText },
 ];
 
 export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
@@ -20,6 +21,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
     const [width, setWidth] = useState(256);
     const sidebarRef = useRef<HTMLDivElement>(null);
     const isResizing = useRef(false);
+    const { url } = usePage();
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -91,12 +93,13 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                 <nav className="flex-1 py-6 flex flex-col gap-1 overflow-x-hidden">
                     {menuItems.map((item, index) => {
                         const Icon = item.icon;
+                        const isActive = url === item.route;
                         return (
-                            <a
+                            <Link
                                 key={index}
-                                href="#"
+                                href={item.route}
                                 className={`flex items-center py-3 transition-colors ${isCollapsed ? 'justify-center px-0 border-transparent' : 'px-8 border-r-4'} ${
-                                    item.active
+                                    isActive
                                         ? `bg-primary/5 text-primary ${!isCollapsed ? 'border-primary' : ''}`
                                         : 'border-transparent text-netral hover:bg-accent hover:text-accent-foreground'
                                 }`}
@@ -104,11 +107,11 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                             >
                                 <Icon className={`w-5 h-5 shrink-0 ${!isCollapsed ? 'mr-4' : ''}`} />
                                 {!isCollapsed && (
-                                    <span className={`truncate ${item.active ? 'text-body-bold' : 'text-body-thin'}`}>
+                                    <span className={`truncate ${isActive ? 'text-body-bold' : 'text-body-thin'}`}>
                                         {item.name}
                                     </span>
                                 )}
-                            </a>
+                            </Link>
                         );
                     })}
                 </nav>

@@ -3,16 +3,16 @@ import { Check } from 'lucide-react';
 
 export default function ProgressTimelineCard() {
     const timeline = [
-        { title: 'Minggu 1', desc: 'Observasi Awal', status: 'completed' },
-        { title: 'Minggu 2', desc: 'Edukasi Dasar', status: 'completed' },
-        { title: 'Minggu 3-4', desc: 'Stimulasi Responsif', status: 'current', progress: 75 },
-        { title: 'Minggu 5-8', desc: 'Peningkatan Rutinitas', status: 'upcoming' },
+        { title: 'Minggu 1-4', desc: 'Observasi & Edukasi Dasar', status: 'completed' },
+        { title: 'Minggu 5-8', desc: 'Peningkatan Rutinitas', status: 'completed' },
+        { title: 'Minggu 9-12', desc: 'Stimulasi Responsif', status: 'current', progress: 75 },
+        { title: 'Minggu 13-24', desc: 'Pemantapan & Evaluasi', status: 'upcoming' },
     ];
 
     return (
         <div className="bg-white rounded-2xl p-8 shadow-sm border border-border h-full">
             <h3 className="text-netral mb-1">Progress Intervensi</h3>
-            <p className="text-body-thin text-netral mb-8">Minggu ke-4 dari 24</p>
+            <p className="text-body-thin text-netral mb-8">Minggu ke-12 dari 24</p>
             
             <div className="relative border-l-2 border-netral/20 ml-3 pl-8 space-y-8 mt-4">
                 {timeline.map((item, idx) => (

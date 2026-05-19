@@ -36,15 +36,15 @@ export default function Dashboard() {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                     <MetricCard 
                                         title="BERAT BADAN ANAK (BB)"
-                                        value="12.5"
+                                        value="12.0"
                                         unit="kg"
-                                        subtext="+0.2 kg bulan ini"
+                                        subtext="-0.5 kg bulan ini"
                                         icon="scale"
                                         variant="secondary"
                                     />
                                     <MetricCard 
-                                        title="BMI ANAK"
-                                        value="16.2"
+                                        title="IMT ANAK"
+                                        value="17.8"
                                         unit="Normal"
                                         hasBar={true}
                                         icon="ruler"
