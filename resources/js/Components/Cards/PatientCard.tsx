@@ -1,17 +1,31 @@
 import React from 'react';
 import StatusBadge from '../Badges/StatusBadge';
 
-export default function PatientCard() {
+interface PatientCardProps {
+    name: string;
+    age: string;
+    status: string;
+    img: string;
+    isActive?: boolean;
+    onClick?: () => void;
+}
+
+export default function PatientCard({ name, age, status, img, isActive = true, onClick }: PatientCardProps) {
     return (
-        <div className="bg-primary/10 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between border border-primary/20 shadow-sm gap-6 md:gap-0">
+        <div 
+            onClick={onClick}
+            className={`rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between border shadow-sm gap-6 md:gap-0 cursor-pointer transition-all ${
+                isActive ? 'bg-primary/10 border-primary/40 shadow-md ring-1 ring-primary/20' : 'bg-white border-border/50 hover:border-primary/30 opacity-70 hover:opacity-100'
+            }`}
+        >
             <div className="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left w-full md:w-auto">
-                <div className="w-20 h-20 rounded-2xl bg-white p-1.5 shadow-sm flex items-center justify-center border border-white shrink-0">
-                    <img src="https://i.pravatar.cc/150?img=36" alt="Aira Putri Mahesa" className="w-full h-full rounded-xl object-cover" />
+                <div className="w-20 h-20 rounded-2xl bg-white p-1.5 shadow-sm flex items-center justify-center border border-gray-100 shrink-0">
+                    <img src={img} alt={name} className="w-full h-full rounded-xl object-cover" />
                 </div>
                 <div>
-                    <h2 className="text-netral">Aira Putri Mahesa</h2>
-                    <p className="text-body-thin text-netral mb-2">24 Bulan</p>
-                    <StatusBadge status="Normal" variant="secondary" />
+                    <h2 className="text-netral text-xl font-bold">{name}</h2>
+                    <p className="text-body-thin text-netral mb-2">{age}</p>
+                    <StatusBadge status={status} variant={status === 'Normal' ? 'secondary' : (status === 'Belum Diukur' ? 'primary' : 'warning')} />
                 </div>
             </div>
             

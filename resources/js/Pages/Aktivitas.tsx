@@ -116,7 +116,18 @@ export default function Aktivitas() {
     const completedToday = allActivities.filter(a => a.status === 'completed').length;
 
     // The "today's task" is the first available activity
-    const todayTask = allActivities.find(a => a.status === 'available') || allActivities[0];
+    const defaultTask = allActivities.find(a => a.status === 'available') || allActivities[0];
+    const savedIMTStatus = typeof window !== 'undefined' ? localStorage.getItem('childIMTStatus') || 'Normal' : 'Normal';
+    
+    // Dynamic override based on IMT status
+    let todayTask = { ...defaultTask };
+    if (savedIMTStatus === 'Kurus') {
+        todayTask.title = "Aktivitas Nutrisi: Stimulasi Makan";
+        todayTask.description = "Bantu tingkatkan nafsu makan anak dengan aktivitas sensorik dan pemberian makan ekstra kalori kreatif";
+    } else if (savedIMTStatus === 'Obesitas' || savedIMTStatus === 'Beresiko Gizi Lebih') {
+        todayTask.title = "Aktivitas Fisik Ekstra (Pembakaran Kalori)";
+        todayTask.description = "Ajak anak bergerak aktif selama 20 menit ekstra dengan permainan melompat ringan dan lari kecil";
+    }
 
     return (
         <div className="min-h-screen bg-background flex w-full">

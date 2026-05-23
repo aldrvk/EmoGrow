@@ -4,13 +4,84 @@ import Sidebar from '../Components/Layout/Sidebar';
 import Header from '../Components/Layout/Header';
 import Button from '../Components/Buttons/Button';
 import Badge from '../Components/Badges/Badge';
-import { Clock, ArrowRight, Play, Eye, HelpCircle } from 'lucide-react';
+import { Clock, ArrowRight, Play, Eye, HelpCircle, Info, Baby } from 'lucide-react';
 
 export default function Edukasi() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const categories = ['Semua', 'Pertumbuhan', 'Perkembangan', 'Video', 'Infografis'];
     const [activeCategory, setActiveCategory] = useState('Semua');
+
+    const savedIMTStatus = typeof window !== 'undefined' ? localStorage.getItem('childIMTStatus') || 'Normal' : 'Normal';
+    const savedIMTScore = typeof window !== 'undefined' ? localStorage.getItem('childIMTScore') || '-' : '-';
+    const savedAge = typeof window !== 'undefined' ? localStorage.getItem('childAge') || '' : '';
+    const savedWeight = typeof window !== 'undefined' ? localStorage.getItem('childWeight') || '' : '';
+    const savedHeight = typeof window !== 'undefined' ? localStorage.getItem('childHeight') || '' : '';
+
+    // Determine age group label
+    const getAgeGroup = () => {
+        const months = parseInt(savedAge);
+        if (!months) return '';
+        if (months <= 12) return '0-12 Bulan';
+        if (months <= 24) return '12-24 Bulan';
+        if (months <= 36) return '2-3 Tahun';
+        return '3-5 Tahun';
+    };
+    const ageGroup = getAgeGroup();
+
+    const getStatusColor = () => {
+        if (savedIMTStatus === 'Normal') return { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-700', dot: 'bg-green-500' };
+        if (savedIMTStatus === 'Kurus') return { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-700', dot: 'bg-orange-500' };
+        return { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', dot: 'bg-red-500' };
+    };
+    const statusColor = getStatusColor();
+
+    const getDynamicContent = () => {
+        const ageMonths = parseInt(savedAge) || 24;
+
+        if (savedIMTStatus === 'Kurus') {
+            return {
+                featuredTitle: ageMonths <= 24
+                    ? "Panduan MPASI Padat Gizi untuk Bayi Underweight"
+                    : "Pentingnya Nutrisi Tambahan & Kalori Padat",
+                featuredDesc: ageMonths <= 24
+                    ? `Pelajari resep MPASI tinggi kalori & protein untuk mengejar pertumbuhan bayi usia ${ageGroup} dengan BB ${savedWeight} kg.`
+                    : `Pelajari panduan meningkatkan BB anak usia ${ageGroup} (TB: ${savedHeight} cm, BB: ${savedWeight} kg) agar mencapai kurva pertumbuhan ideal.`,
+                infografisTitle: "Panduan Gizi Anak Underweight",
+                infografisDesc: "Visualisasi mudah untuk menyusun porsi makan ekstra kalori padat gizi guna mengejar BB ideal.",
+                videoTitle: "Latihan Stimulasi Nafsu Makan",
+                videoDesc: `Panduan praktis menstimulasi nafsu makan anak usia ${ageGroup} yang sulit makan dengan cara menyenangkan.`
+            };
+        } else if (savedIMTStatus === 'Obesitas' || savedIMTStatus === 'Beresiko Gizi Lebih') {
+            return {
+                featuredTitle: ageMonths <= 24
+                    ? "Mengatur Porsi Makan Bayi Agar Tidak Overweight"
+                    : "Manajemen Berat Badan Anak Sejak Dini",
+                featuredDesc: ageMonths <= 24
+                    ? `Pelajari porsi MPASI yang tepat agar bayi usia ${ageGroup} dengan BB ${savedWeight} kg tidak kelebihan berat badan.`
+                    : `Pelajari cara mengatur asupan kalori dan aktivitas fisik anak usia ${ageGroup} (BB: ${savedWeight} kg, TB: ${savedHeight} cm) untuk menurunkan IMT secara sehat.`,
+                infografisTitle: "Panduan Diet Sehat Anak Overweight",
+                infografisDesc: "Visualisasi panduan porsi makan dan substitusi camilan sehat untuk menurunkan IMT secara perlahan.",
+                videoTitle: "Aktivitas Fisik Fun untuk Anak",
+                videoDesc: `Latihan gerak menyenangkan yang dirancang khusus untuk anak usia ${ageGroup} agar membakar kalori berlebih.`
+            };
+        } else {
+            return {
+                featuredTitle: ageMonths <= 24
+                    ? "Panduan Gizi Seimbang untuk Bayi di Golden Age"
+                    : "Nutrisi Seimbang untuk Tumbuh Kembang Optimal",
+                featuredDesc: ageMonths <= 24
+                    ? `Menu MPASI kaya nutrisi untuk bayi usia ${ageGroup} (BB: ${savedWeight} kg) guna mendukung masa golden age.`
+                    : `Pelajari panduan lengkap menu harian untuk anak usia ${ageGroup} (BB: ${savedWeight} kg, TB: ${savedHeight} cm) yang mendukung perkembangan kognitif & fisik.`,
+                infografisTitle: "Panduan Mempertahankan Status Gizi Normal",
+                infografisDesc: "Visualisasi porsi 'Isi Piringku' untuk menjaga status gizi dan kesehatan optimal setiap hari.",
+                videoTitle: "Latihan Motorik Kasar di Rumah",
+                videoDesc: `Panduan praktis melatih keseimbangan dan koordinasi anak usia ${ageGroup} dengan peralatan sederhana.`
+            };
+        }
+    };
+
+    const content = getDynamicContent();
 
     return (
         <div className="min-h-screen bg-background flex w-full">
@@ -24,8 +95,30 @@ export default function Edukasi() {
                         
                         {/* Page Header */}
                         <div className="mb-8">
-                            <h1 className="text-netral text-3xl md:text-[36px] leading-tight font-bold mb-6">Pusat Edukasi EmoGROW</h1>
+                            <h1 className="text-netral text-3xl md:text-[36px] leading-tight font-bold mb-4">Pusat Edukasi EmoGROW</h1>
                             
+                            {/* IMT Status Banner */}
+                            <div className={`${statusColor.bg} ${statusColor.border} border rounded-2xl p-4 mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-3`}>
+                                <div className={`w-10 h-10 rounded-full ${statusColor.bg} flex items-center justify-center shrink-0`}>
+                                    <Info className={`w-5 h-5 ${statusColor.text}`} />
+                                </div>
+                                <div className="flex-1">
+                                    <p className={`text-sm font-bold ${statusColor.text}`}>
+                                        Edukasi ini menyesuaikan kondisi IMT anak Anda ({savedIMTStatus})
+                                    </p>
+                                    <p className="text-xs text-gray-500 mt-0.5">
+                                        {savedAge ? `Usia: ${savedAge} bulan` : ''}
+                                        {savedWeight ? ` · BB: ${savedWeight} kg` : ''}
+                                        {savedHeight ? ` · TB: ${savedHeight} cm` : ''}
+                                        {savedIMTScore !== '-' ? ` · Skor IMT: ${savedIMTScore}` : ''}
+                                    </p>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                    <span className={`w-2 h-2 rounded-full ${statusColor.dot} animate-pulse`}></span>
+                                    <span className={`text-xs font-semibold ${statusColor.text}`}>{savedIMTStatus}</span>
+                                </div>
+                            </div>
+
                             {/* Filter Pills */}
                             <div className="flex flex-wrap gap-3">
                                 {categories.map(category => (
@@ -74,10 +167,10 @@ export default function Edukasi() {
                             <div className="p-8 md:p-10 flex-1 flex flex-col justify-center items-start">
                                 <Badge variant="primary" className="mb-4">Modul Pembelajaran</Badge>
                                 <h2 className="text-[28px] font-bold text-netral leading-tight mb-4">
-                                    Nutrisi Seimbang untuk Tumbuh Kembang Optimal
+                                    {content.featuredTitle}
                                 </h2>
                                 <p className="text-body-thin text-netral/80 leading-relaxed mb-8 max-w-[500px]">
-                                    Pelajari panduan lengkap menyusun menu harian yang kaya nutrisi untuk mendukung perkembangan kognitif dan fisik anak pada masa golden age.
+                                    {content.featuredDesc}
                                 </p>
                                 <Button 
                                     variant="primary" 
@@ -124,9 +217,9 @@ export default function Edukasi() {
                                         </div>
                                     </div>
                                     <div className="p-6 flex flex-col flex-1">
-                                        <h3 className="text-large-text text-netral mb-2 leading-tight">Latihan Motorik Kasar di Rumah</h3>
+                                        <h3 className="text-large-text text-netral mb-2 leading-tight">{content.videoTitle}</h3>
                                         <p className="text-small-text text-netral/70 leading-relaxed mb-6 flex-1">
-                                            Panduan praktis melatih keseimbangan dan koordinasi anak dengan peralatan sederhana.
+                                            {content.videoDesc}
                                         </p>
                                         <div className="mt-auto">
                                             <div className="flex justify-between items-center mb-2">
@@ -171,9 +264,9 @@ export default function Edukasi() {
                                         </div>
                                     </div>
                                     <div className="p-6 flex flex-col flex-1">
-                                        <h3 className="text-large-text text-netral mb-2 leading-tight">Panduan Gizi Seimbang Anak Overweight</h3>
+                                        <h3 className="text-large-text text-netral mb-2 leading-tight">{content.infografisTitle}</h3>
                                         <p className="text-small-text text-netral/70 leading-relaxed mb-6 flex-1">
-                                            Visualisasi mudah dipahami untuk mengatur porsi makan dan memilih camilan sehat harian.
+                                            {content.infografisDesc}
                                         </p>
                                         <div className="mt-auto">
                                             <button className="flex items-center gap-2 text-primary text-sm font-medium hover:text-primary/80 transition-colors">

@@ -4,6 +4,10 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Foundation\Application;
 
+Route::get('/login', function () {
+    return Inertia::render('Auth/Login');
+})->name('login');
+
 Route::get('/', function () {
     return Inertia::render('Dashboard');
 })->name('dashboard');
@@ -50,3 +54,8 @@ Route::get('/monitoring', function () {
 Route::get('/laporan-evaluasi', function () {
     return Inertia::render('LaporanEvaluasi');
 })->name('laporan.evaluasi');
+
+Route::get('/admin', function () {
+    return Inertia::render('AdminPanel');
+})->name('admin');
+

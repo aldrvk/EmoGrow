@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { LayoutDashboard, Users, BookOpen, Activity, LineChart, FileText, LogOut, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, Activity, LineChart, FileText, LogOut, ChevronLeft, ChevronRight, X, Shield } from 'lucide-react';
 import { Link, usePage } from '@inertiajs/react';
 
 interface SidebarProps {
@@ -14,6 +14,7 @@ const menuItems = [
     { name: 'Aktivitas', route: '/aktivitas', icon: Activity },
     { name: 'Monitoring', route: '/monitoring', icon: LineChart },
     { name: 'Laporan Evaluasi', route: '/laporan-evaluasi', icon: FileText },
+    { name: 'Admin Panel', route: '/admin', icon: Shield },
 ];
 
 export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
@@ -67,7 +68,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             <div 
                 ref={sidebarRef}
                 style={{ width: isOpen ? 256 : (isCollapsed ? 80 : width) }}
-                className={`fixed inset-y-0 left-0 z-50 bg-white border-r border-border min-h-screen flex flex-col transition-all duration-300 md:relative md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
+                className={`fixed inset-y-0 left-0 z-50 bg-white shadow-sm min-h-screen flex flex-col transition-all duration-300 md:relative md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
             >
                 {/* Resize Handle (Desktop Only) */}
                 <div 
@@ -75,7 +76,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                     onMouseDown={handleMouseDown}
                 />
 
-                <div className={`h-24 flex items-center border-b border-border relative ${isCollapsed ? 'justify-center px-0' : 'px-8'}`}>
+                <div className={`h-24 flex items-center relative ${isCollapsed ? 'justify-center px-0' : 'px-8'}`}>
                     {!isCollapsed && (
                         <div className="flex-1 truncate">
                             <h2 className="text-netral truncate">EmoGROW</h2>
@@ -92,6 +93,11 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
 
                 <nav className="flex-1 py-6 flex flex-col gap-1 overflow-x-hidden">
                     {menuItems.map((item, index) => {
+                        // Hide Admin Panel if the mock userRole is not admin
+                        if (item.name === 'Admin Panel' && typeof window !== 'undefined' && localStorage.getItem('userRole') !== 'admin') {
+                            return null;
+                        }
+                        
                         const Icon = item.icon;
                         const isActive = url === item.route;
                         return (
@@ -116,9 +122,9 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                     })}
                 </nav>
 
-                <div className="border-t border-border mt-auto">
+                <div className="mt-auto">
                     {/* Desktop Collapse Toggle */}
-                    <div className="hidden md:flex p-2 border-b border-border/50 justify-end">
+                    <div className="hidden md:flex p-2 justify-end">
                         <button 
                             onClick={() => setIsCollapsed(!isCollapsed)}
                             className="p-1.5 rounded-lg text-netral hover:bg-netral/10 transition-colors"
@@ -128,10 +134,10 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                     </div>
                     
                     <div className={`p-6 ${isCollapsed ? 'flex justify-center' : ''}`}>
-                        <a href="#" className={`flex items-center text-netral hover:text-primary transition-colors group ${isCollapsed ? 'justify-center' : ''}`} title={isCollapsed ? "Logout" : undefined}>
+                        <Link href="/login" className={`w-full flex items-center text-netral hover:text-primary transition-colors group ${isCollapsed ? 'justify-center' : ''}`} title={isCollapsed ? "Logout" : undefined}>
                             <LogOut className={`w-5 h-5 shrink-0 ${!isCollapsed ? 'mr-4' : ''}`} />
                             {!isCollapsed && <span className="text-body-thin truncate">Logout</span>}
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>

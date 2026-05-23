@@ -10,6 +10,42 @@ import { router } from '@inertiajs/react';
 export default function ScreeningAnak() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     
+    // Antropometri State
+    const [usiaAnak, setUsiaAnak] = useState('');
+    const [beratBadan, setBeratBadan] = useState('');
+    const [tinggiBadan, setTinggiBadan] = useState('');
+    const [imtScore, setImtScore] = useState<number | null>(null);
+    const [imtStatus, setImtStatus] = useState<string>('');
+
+    const hitungIMT = () => {
+        const weight = parseFloat(beratBadan);
+        const heightCm = parseFloat(tinggiBadan);
+        
+        if (weight > 0 && heightCm > 0) {
+            const heightM = heightCm / 100;
+            const imt = weight / (heightM * heightM);
+            const formattedScore = parseFloat(imt.toFixed(1));
+            setImtScore(formattedScore);
+            
+            let status = 'Normal';
+            if (imt < 14) status = 'Kurus';
+            else if (imt >= 14 && imt <= 18) status = 'Normal';
+            else if (imt > 18 && imt <= 20) status = 'Beresiko Gizi Lebih';
+            else status = 'Obesitas';
+            
+            setImtStatus(status);
+            
+            // Simpan ke local storage agar halaman lain bisa menyesuaikan
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('childIMTScore', formattedScore.toString());
+                localStorage.setItem('childIMTStatus', status);
+                localStorage.setItem('childAge', usiaAnak);
+                localStorage.setItem('childWeight', beratBadan);
+                localStorage.setItem('childHeight', tinggiBadan);
+            }
+        }
+    };
+
     const [kuesioner, setKuesioner] = useState({
         q1: 'ya' as 'ya' | 'tidak' | null,
         q2: 'ya' as 'ya' | 'tidak' | null,
@@ -56,10 +92,35 @@ export default function ScreeningAnak() {
                                     }
                                 >
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-                                        <TextInput label="Usia Anak (Bulan)" placeholder="Contoh: 24" />
-                                        <TextInput label="Berat Badan (kg)" placeholder="Contoh: 12.5" />
-                                        <TextInput label="Tinggi Badan (cm)" placeholder="Contoh: 85.0" />
-                                        <TextInput label="Lingkar Pinggang (cm)" placeholder="Contoh: 45.0" />
+                                        <TextInput label="Usia Anak (Bulan)" placeholder="Contoh: 24" type="number" value={usiaAnak} onChange={(e) => setUsiaAnak(e.target.value)} />
+                                        <TextInput 
+                                            label="Berat Badan (kg)" 
+                                            placeholder="Contoh: 12.5" 
+                                            type="number" 
+                                            step="0.1" 
+                                            value={beratBadan} 
+                                            onChange={(e) => setBeratBadan(e.target.value)} 
+                                        />
+                                        <TextInput 
+                                            label="Tinggi Badan (cm)" 
+                                            placeholder="Contoh: 85.0" 
+                                            type="number" 
+                                            step="0.1" 
+                                            value={tinggiBadan} 
+                                            onChange={(e) => setTinggiBadan(e.target.value)} 
+                                        />
+                                        <TextInput label="Lingkar Pinggang (cm)" placeholder="Contoh: 45.0" type="number" step="0.1" />
+                                        
+                                        <div className="md:col-span-2 pt-2">
+                                            <Button 
+                                                type="button" 
+                                                onClick={hitungIMT} 
+                                                variant="outline" 
+                                                className="w-full h-[46px] border-primary text-primary hover:bg-primary/5"
+                                            >
+                                                Hitung IMT
+                                            </Button>
+                                        </div>
                                     </div>
                                 </FormCard>
 
@@ -135,22 +196,40 @@ export default function ScreeningAnak() {
                                     <div className="absolute bottom-10 right-10 w-40 h-40 bg-primary/20 rounded-full blur-[60px] pointer-events-none"></div>
 
                                     {/* Content Container */}
-                                    <div className="relative z-10 flex flex-col items-center max-w-[280px]">
-                                        <div className="w-[72px] h-[72px] bg-primary rounded-2xl flex items-center justify-center text-white mb-6 shadow-sm">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                                                <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path>
-                                                <line x1="12" y1="11" x2="12" y2="17"></line>
-                                                <line x1="9" y1="14" x2="15" y2="14"></line>
-                                            </svg>
+                                    {imtScore ? (
+                                        <div className="relative z-10 flex flex-col items-center max-w-[280px] animate-in fade-in zoom-in duration-300">
+                                            <div className="w-28 h-28 rounded-full border-[6px] border-[#f472b6] flex items-center justify-center bg-white shadow-xl mb-4 relative">
+                                                <span className="text-4xl font-extrabold text-[#f472b6]">{imtScore}</span>
+                                            </div>
+                                            <h2 className="text-section-title text-netral mb-3 leading-tight font-bold">Skor IMT (BMI)</h2>
+                                            <div className={`px-5 py-2 rounded-full text-sm font-bold text-white mb-6 shadow-md ${
+                                                imtStatus === 'Normal' ? 'bg-[#60a84e]' : 
+                                                imtStatus === 'Kurus' ? 'bg-orange-400' : 'bg-red-500'
+                                            }`}>
+                                                {imtStatus}
+                                            </div>
+                                            <p className="text-body-thin text-netral/80 leading-relaxed">
+                                                Luar biasa! Skor IMT anak Anda sudah dihitung. Lanjutkan mengisi kuesioner dan klik <b>Analisis Data Sekarang</b>.
+                                            </p>
                                         </div>
-                                        
-                                        <h2 className="text-section-title text-netral mb-4 leading-tight">Menunggu Data Input...</h2>
-                                        
-                                        <p className="text-body-thin text-netral/80 leading-relaxed">
-                                            Silakan lengkapi formulir antropometri dan checklist di sebelah kiri. Sistem akan secara otomatis mengkalkulasi BMI, status gizi, dan merancang program intervensi 24 minggu untuk anak Anda.
-                                        </p>
-                                    </div>
+                                    ) : (
+                                        <div className="relative z-10 flex flex-col items-center max-w-[280px]">
+                                            <div className="w-[72px] h-[72px] bg-primary rounded-2xl flex items-center justify-center text-white mb-6 shadow-sm">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                                    <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path>
+                                                    <line x1="12" y1="11" x2="12" y2="17"></line>
+                                                    <line x1="9" y1="14" x2="15" y2="14"></line>
+                                                </svg>
+                                            </div>
+                                            
+                                            <h2 className="text-section-title text-netral mb-4 leading-tight">Menunggu Data Input...</h2>
+                                            
+                                            <p className="text-body-thin text-netral/80 leading-relaxed">
+                                                Silakan lengkapi formulir antropometri dan checklist di sebelah kiri. Sistem akan secara otomatis mengkalkulasi BMI, status gizi, dan merancang program intervensi 24 minggu untuk anak Anda.
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             

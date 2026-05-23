@@ -1,5 +1,5 @@
 import React from 'react';
-import { Scale, Ruler } from 'lucide-react';
+import { Scale, Ruler, Clock } from 'lucide-react';
 
 interface MetricCardProps {
     title: string;
@@ -7,7 +7,7 @@ interface MetricCardProps {
     unit?: string;
     subtext?: string;
     hasBar?: boolean;
-    icon: 'scale' | 'ruler';
+    icon: 'scale' | 'ruler' | 'clock';
     variant: 'primary' | 'secondary';
 }
 
@@ -19,6 +19,7 @@ export default function MetricCard({ title, value, unit, subtext, hasBar, icon, 
             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 mt-1 ${isPrimary ? 'bg-primary/20 text-primary' : 'bg-secondary/20 text-secondary'}`}>
                 {icon === 'scale' && <Scale className="w-6 h-6" />}
                 {icon === 'ruler' && <Ruler className="w-6 h-6" />}
+                {icon === 'clock' && <Clock className="w-6 h-6" />}
             </div>
             
             <div className="flex-1">
