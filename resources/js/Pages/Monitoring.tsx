@@ -4,17 +4,15 @@ import Sidebar from '../Components/Layout/Sidebar';
 import Header from '../Components/Layout/Header';
 import Badge from '../Components/Badges/Badge';
 import {
-    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart,
-    RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend,
-    ReferenceArea
+    XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart,
+    RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ReferenceArea
 } from 'recharts';
-import { TrendingDown, TrendingUp, Activity, AlertTriangle, CheckCircle2, Heart, Brain, Eye } from 'lucide-react';
+import { TrendingDown, CheckCircle2, AlertTriangle, Award, Calendar, Activity } from 'lucide-react';
 
 // ---------- DUMMY DATA ----------
-
 const childProfile = {
     name: 'Aira Putri Mahesa',
-    age: '24 bulan',
+    age: '24 Bulan',
 };
 
 const metrics = {
@@ -50,7 +48,7 @@ const chartDataIMT = [
     { minggu: 'M8', anak: 18.8, normalMin: 14.0, normalMax: 18.0, overweightMax: 20.5 },
     { minggu: 'M12', anak: 18.2, normalMin: 14.0, normalMax: 18.0, overweightMax: 20.5 },
     { minggu: 'M16', anak: 17.9, normalMin: 14.0, normalMax: 18.0, overweightMax: 20.5 },
-    { minggu: 'M20', anak: 17.8, normalMin: 14.0, normalMax: 18.0, overweightMax: 20.5 },
+    { minggu: 'M20', anak: 17.8, normalMin: 14.0, normalMax: 18.0, overweightMax: 20.5 }, // ✅ dihapus key "font"
     { minggu: 'M24', anak: 17.8, normalMin: 14.0, normalMax: 18.0, overweightMax: 20.5 },
 ];
 
@@ -72,42 +70,93 @@ const radarData = [
     { subject: 'Kognitif', value: 82, fullMark: 100 },
 ];
 
-// Heatmap: 24 weeks, each week has 7 days
-const generateHeatmapData = () => {
-    const data: { week: number; day: number; done: boolean }[] = [];
-    for (let w = 1; w <= 24; w++) {
-        for (let d = 0; d < 7; d++) {
-            const done = w <= 12 ? Math.random() > 0.25 : false;
-            data.push({ week: w, day: d, done });
-        }
-    }
-    return data;
-};
-const heatmapData = generateHeatmapData();
+const heatmapData = Array.from({ length: 24 }, (_, w) =>
+    Array.from({ length: 7 }, (_, d) => ({
+        week: w + 1,
+        day: d,
+        done: w + 1 <= 12 ? Math.random() > 0.25 : false
+    }))
+).flat();
 
 const chartTabs = [
     { key: 'bb', label: 'Berat Badan' },
     { key: 'tb', label: 'Tinggi Badan' },
-    { key: 'imt', label: 'IMT' },
-    { key: 'whtr', label: 'WHtR' },
+    { key: 'imt', label: 'IMT (BMI)' },
+    { key: 'whtr', label: 'Rasio WHtR' },
 ] as const;
 
 type ChartTab = typeof chartTabs[number]['key'];
 
-// ---------- COMPONENT ----------
+// ✅ Pisahkan tiap chart ke komponen/render sendiri agar tidak ada kondisional di dalam AreaChart
+const ChartBB = () => (
+    <AreaChart data={chartDataBB} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+        <XAxis dataKey="minggu" stroke="#000" fontSize={11} fontWeight={800} tickLine={false} />
+        <YAxis stroke="#000" fontSize={11} fontWeight={800} tickLine={false} />
+        <Tooltip
+            contentStyle={{ backgroundColor: '#000', borderRadius: '12px', border: '2px solid #000', color: '#fff' }}
+            itemStyle={{ color: '#fff', fontSize: '12px' }}
+            labelStyle={{ fontWeight: '900', color: '#CCF281', marginBottom: '2px' }}
+        />
+        <Area type="monotone" dataKey="overweightMax" stroke="#94A3B8" strokeDasharray="4 4" fill="#FCA5A5" fillOpacity={0.2} />
+        <Area type="monotone" dataKey="normalMax" stroke="#64748B" strokeDasharray="4 4" fill="#7DD3FC" fillOpacity={0.15} />
+        <Area type="monotone" dataKey="normalMin" stroke="#64748B" strokeDasharray="4 4" fill="#fff" fillOpacity={1} />
+        <Area type="monotone" dataKey="anak" stroke="#000" fill="#FEF08A" fillOpacity={0.5} strokeWidth={3} dot={{ r: 4, strokeWidth: 2, stroke: '#000', fill: '#FFF' }} />
+    </AreaChart>
+);
+
+const ChartTB = () => (
+    <AreaChart data={chartDataTB} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+        <XAxis dataKey="minggu" stroke="#000" fontSize={11} fontWeight={800} tickLine={false} />
+        <YAxis stroke="#000" fontSize={11} fontWeight={800} tickLine={false} />
+        <Tooltip
+            contentStyle={{ backgroundColor: '#000', borderRadius: '12px', border: '2px solid #000', color: '#fff' }}
+            itemStyle={{ color: '#fff', fontSize: '12px' }}
+            labelStyle={{ fontWeight: '900', color: '#CCF281', marginBottom: '2px' }}
+        />
+        <Area type="monotone" dataKey="normalMax" stroke="#64748B" strokeDasharray="4 4" fill="#7DD3FC" fillOpacity={0.15} />
+        <Area type="monotone" dataKey="normalMin" stroke="#64748B" strokeDasharray="4 4" fill="#fff" fillOpacity={1} />
+        <Area type="monotone" dataKey="anak" stroke="#000" fill="#FEF08A" fillOpacity={0.5} strokeWidth={3} dot={{ r: 4, strokeWidth: 2, stroke: '#000', fill: '#FFF' }} />
+    </AreaChart>
+);
+
+const ChartIMT = () => (
+    <AreaChart data={chartDataIMT} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+        <XAxis dataKey="minggu" stroke="#000" fontSize={11} fontWeight={800} tickLine={false} />
+        <YAxis stroke="#000" fontSize={11} fontWeight={800} tickLine={false} />
+        <Tooltip
+            contentStyle={{ backgroundColor: '#000', borderRadius: '12px', border: '2px solid #000', color: '#fff' }}
+            itemStyle={{ color: '#fff', fontSize: '12px' }}
+            labelStyle={{ fontWeight: '900', color: '#CCF281', marginBottom: '2px' }}
+        />
+        <Area type="monotone" dataKey="overweightMax" stroke="#94A3B8" strokeDasharray="4 4" fill="#FCA5A5" fillOpacity={0.2} />
+        <Area type="monotone" dataKey="normalMax" stroke="#64748B" strokeDasharray="4 4" fill="#7DD3FC" fillOpacity={0.15} />
+        <Area type="monotone" dataKey="normalMin" stroke="#64748B" strokeDasharray="4 4" fill="#fff" fillOpacity={1} />
+        <Area type="monotone" dataKey="anak" stroke="#000" fill="#FEF08A" fillOpacity={0.5} strokeWidth={3} dot={{ r: 4, strokeWidth: 2, stroke: '#000', fill: '#FFF' }} />
+    </AreaChart>
+);
+
+const ChartWHtR = () => (
+    <AreaChart data={chartDataWHtR} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+        <XAxis dataKey="minggu" stroke="#000" fontSize={11} fontWeight={800} tickLine={false} />
+        <YAxis stroke="#000" fontSize={11} fontWeight={800} tickLine={false} domain={[0.4, 0.6]} />
+        <Tooltip
+            contentStyle={{ backgroundColor: '#000', borderRadius: '12px', border: '2px solid #000', color: '#fff' }}
+            itemStyle={{ color: '#fff', fontSize: '12px' }}
+            labelStyle={{ fontWeight: '900', color: '#CCF281', marginBottom: '2px' }}
+        />
+        <ReferenceArea y1={0.5} y2={0.6} fill="#FCA5A5" fillOpacity={0.25} />
+        <ReferenceArea y1={0.4} y2={0.5} fill="#38BDF8" fillOpacity={0.15} />
+        <Area type="monotone" dataKey="anak" stroke="#000" fill="#CCF281" fillOpacity={0.5} strokeWidth={3} dot={{ r: 4, strokeWidth: 2, stroke: '#000', fill: '#FFF' }} />
+    </AreaChart>
+);
 
 export default function Monitoring() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [activeChart, setActiveChart] = useState<ChartTab>('bb');
-
-    const getChartData = () => {
-        switch (activeChart) {
-            case 'bb': return chartDataBB;
-            case 'tb': return chartDataTB;
-            case 'imt': return chartDataIMT;
-            case 'whtr': return chartDataWHtR;
-        }
-    };
 
     const getChartUnit = () => {
         switch (activeChart) {
@@ -115,116 +164,138 @@ export default function Monitoring() {
             case 'tb': return 'cm';
             case 'imt': return 'kg/m²';
             case 'whtr': return 'rasio';
+            default: return '';
         }
     };
 
+    // ✅ Render chart yang benar berdasarkan tab aktif
+    const renderChart = () => {
+        switch (activeChart) {
+            case 'bb': return <ChartBB />;
+            case 'tb': return <ChartTB />;
+            case 'imt': return <ChartIMT />;
+            case 'whtr': return <ChartWHtR />;
+        }
+    };
+
+    const dayLabels = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+
     return (
-        <div className="min-h-screen bg-background flex w-full">
+        <div className="min-h-screen bg-[#FAF9F5] flex w-full font-sans antialiased text-black select-none">
             <Head title="Monitoring Pertumbuhan" />
             <Sidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
 
             <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
                 <Header onMenuClick={() => setIsMobileMenuOpen(true)} />
-                <main className="flex-1 overflow-y-auto p-4 md:p-8">
-                    <div className="max-w-[1200px] mx-auto">
 
-                        {/* Page Header */}
-                        <div className="flex items-center justify-between mb-8">
-                            <div className="flex items-center gap-4">
-                                <div>
-                                    <h1 className="text-netral leading-tight">Monitoring Pertumbuhan</h1>
-                                    <h4 className="text-secondary">{childProfile.name} &bull; {childProfile.age}</h4>
+                <main className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+                    <div className="max-w-[1240px] mx-auto space-y-6">
+
+                        {/* ---------- PAGE HEADER ---------- */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#CCF281] p-6 border-2 border-black rounded-2xl shadow-[4px_4px_0px_0px_#000]">
+                            <div className="space-y-2">
+                                <h1 className="text-xl md:text-2xl font-black uppercase tracking-tight text-black">
+                                    Monitoring & Analitik Pertumbuhan
+                                </h1>
+                                <div className="flex items-center gap-2 bg-white/60 px-3 py-1 rounded-xl border-2 border-black w-fit text-xs md:text-sm font-bold">
+                                    <span className="relative flex h-2 w-2">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-black opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-black"></span>
+                                    </span>
+                                    {childProfile.name} <span className="text-black/40">|</span> {childProfile.age}
                                 </div>
                             </div>
-                            <Badge variant="secondary" className="bg-secondary text-primary-foreground px-4 py-1.5">
-                                Minggu 12 / 24
-                            </Badge>
+                            <div className="flex items-center gap-3 bg-white p-3 rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_#000] self-start sm:self-center">
+                                <span className="text-xs font-black uppercase tracking-wide flex items-center gap-1.5">
+                                    <Calendar className="w-4 h-4 stroke-[2.5]" /> Timeline:
+                                </span>
+                                <Badge className="bg-[#EAEFF5] text-black border-2 border-black px-3 py-0.5 font-black text-xs rounded-lg">
+                                    Minggu 12 / 24
+                                </Badge>
+                            </div>
                         </div>
 
-                        {/* Row 1: Quick Metrics */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        {/* ---------- ROW 1: QUICK METRICS ---------- */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             {/* IMT */}
-                            <div className="bg-card rounded-2xl border border-border/60 shadow-sm p-6">
-                                <p className="text-label-text text-netral/60 uppercase tracking-wider mb-2">IMT Saat Ini</p>
-                                <div className="flex items-end gap-2">
-                                    <span className="text-[36px] font-bold text-netral leading-none">{metrics.imt.value}</span>
-                                    <span className="text-body-thin text-netral/60 mb-1">kg/m²</span>
+                            <div className="bg-[#FEF08A] border-2 border-black p-5 rounded-2xl shadow-[4px_4px_0px_0px_#000] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_0px_#000] transition-all">
+                                <p className="text-xs font-black uppercase tracking-wide mb-1 text-black/60">IMT Saat Ini</p>
+                                <div className="flex items-baseline gap-1">
+                                    <span className="text-4xl font-black tracking-tight">{metrics.imt.value}</span>
+                                    <span className="text-xs font-bold text-black/70">kg/m²</span>
                                 </div>
-                                <div className="flex items-center gap-1.5 mt-3">
-                                    <TrendingDown className="w-4 h-4 text-primary" />
-                                    <span className="text-small-text text-primary">
-                                        -{(metrics.imt.prev - metrics.imt.value).toFixed(1)} dari minggu lalu
-                                    </span>
+                                <div className="flex items-center gap-1.5 mt-3 bg-white border-2 border-black px-2 py-1 rounded-lg text-[11px] font-black w-fit">
+                                    <TrendingDown className="w-3.5 h-3.5 text-red-500 stroke-[3]" />
+                                    <span>-{(metrics.imt.prev - metrics.imt.value).toFixed(1)} DARI MINGGU LALU</span>
                                 </div>
                             </div>
 
                             {/* WHtR */}
-                            <div className="bg-card rounded-2xl border border-border/60 shadow-sm p-6">
-                                <p className="text-label-text text-netral/60 uppercase tracking-wider mb-2">WHtR</p>
-                                <div className="flex items-end gap-2">
-                                    <span className={`text-[36px] font-bold leading-none ${
-                                        metrics.whtr.value > metrics.whtr.threshold ? 'text-primary' : 'text-netral'
-                                    }`}>
-                                        {metrics.whtr.value}
-                                    </span>
+                            <div className="bg-[#7DD3FC] border-2 border-black p-5 rounded-2xl shadow-[4px_4px_0px_0px_#000] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_0px_#000] transition-all">
+                                <p className="text-xs font-black uppercase tracking-wide mb-1 text-black/60">Rasio WHtR</p>
+                                <div className="flex items-baseline gap-1">
+                                    <span className="text-4xl font-black tracking-tight">{metrics.whtr.value}</span>
                                 </div>
-                                <div className="flex items-center gap-1.5 mt-3">
+                                <div className="flex items-center gap-1.5 mt-3 bg-white border-2 border-black px-2 py-1 rounded-lg text-[11px] font-black w-fit">
                                     {metrics.whtr.value <= metrics.whtr.threshold ? (
                                         <>
-                                            <CheckCircle2 className="w-4 h-4 text-secondary" />
-                                            <span className="text-small-text text-secondary">Di bawah ambang batas (0.5)</span>
+                                            <CheckCircle2 className="w-3.5 h-3.5 text-green-600 stroke-[3]" />
+                                            <span>NORMAL (&le; {metrics.whtr.threshold})</span>
                                         </>
                                     ) : (
                                         <>
-                                            <AlertTriangle className="w-4 h-4 text-primary" />
-                                            <span className="text-small-text text-primary">Di atas ambang batas!</span>
+                                            <AlertTriangle className="w-3.5 h-3.5 text-amber-500 stroke-[3]" />
+                                            <span>MELEBIHI BATAS!</span>
                                         </>
                                     )}
                                 </div>
                             </div>
 
                             {/* Kepatuhan */}
-                            <div className="bg-card rounded-2xl border border-border/60 shadow-sm p-6">
-                                <p className="text-label-text text-netral/60 uppercase tracking-wider mb-2">Tingkat Kepatuhan</p>
-                                <div className="flex items-end gap-2">
-                                    <span className="text-[36px] font-bold text-netral leading-none">{metrics.kepatuhan.value}</span>
-                                    <span className="text-body-thin text-netral/60 mb-1">%</span>
+                            <div className="bg-[#FCA5A5] border-2 border-black p-5 rounded-2xl shadow-[4px_4px_0px_0px_#000] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_0px_#000] transition-all">
+                                <p className="text-xs font-black uppercase tracking-wide mb-1 text-black/60">Kepatuhan Rutin</p>
+                                <div className="flex items-baseline gap-1">
+                                    <span className="text-4xl font-black tracking-tight">{metrics.kepatuhan.value}</span>
+                                    <span className="text-xs font-bold text-black/70">%</span>
                                 </div>
-                                <div className="mt-3">
-                                    <div className="h-2 bg-muted rounded-full overflow-hidden">
-                                        <div className="h-full bg-secondary rounded-full transition-all" style={{ width: `${metrics.kepatuhan.value}%` }} />
+                                <div className="mt-3 space-y-1.5">
+                                    <div className="h-3.5 bg-white border-2 border-black rounded-full p-0.5 overflow-hidden">
+                                        <div className="h-full bg-black rounded-full transition-all duration-500" style={{ width: `${metrics.kepatuhan.value}%` }} />
                                     </div>
-                                    <p className="text-small-text text-netral/50 mt-1.5">{metrics.kepatuhan.completed}/{metrics.kepatuhan.total} sesi selesai</p>
+                                    <p className="text-[10px] font-black uppercase flex justify-between text-black/70">
+                                        <span>Progres Sesi</span>
+                                        <span className="bg-white px-1.5 border border-black rounded text-black">{metrics.kepatuhan.completed}/{metrics.kepatuhan.total}</span>
+                                    </p>
                                 </div>
                             </div>
 
                             {/* Status Gizi */}
-                            <div className="bg-card rounded-2xl border border-border/60 shadow-sm p-6">
-                                <p className="text-label-text text-netral/60 uppercase tracking-wider mb-2">Status Gizi</p>
-                                <div className="flex items-end gap-2 mb-3">
-                                    <span className="text-[36px] font-bold text-netral leading-none">{metrics.statusGizi.label}</span>
+                            <div className="bg-[#D8B4FE] border-2 border-black p-5 rounded-2xl shadow-[4px_4px_0px_0px_#000] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_0px_#000] transition-all flex flex-col justify-between">
+                                <div>
+                                    <p className="text-xs font-black uppercase tracking-wide mb-1 text-black/60">Status Gizi</p>
+                                    <span className="text-3xl font-black uppercase tracking-tight">{metrics.statusGizi.label}</span>
                                 </div>
-                                <Badge variant={metrics.statusGizi.variant} className="bg-secondary text-primary-foreground px-3 py-1">
-                                    <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
+                                <div className="mt-3 bg-white border-2 border-black flex items-center justify-center gap-1.5 py-1 rounded-xl font-black text-xs shadow-[2px_2px_0px_0px_#000] uppercase">
+                                    <Award className="w-3.5 h-3.5 stroke-[3] text-purple-700" />
                                     Target Tercapai
-                                </Badge>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Row 2: Analytics */}
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                            {/* Left: Interactive Chart (col-span-2) */}
-                            <div className="lg:col-span-2 bg-card rounded-2xl border border-border/60 shadow-sm overflow-hidden">
-                                {/* Chart Tabs */}
-                                <div className="flex border-b border-border/40">
+                        {/* ---------- ROW 2: ANALYTICS GRID ---------- */}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            {/* Left: Interactive Main Chart */}
+                            <div className="lg:col-span-2 bg-white border-2 border-black rounded-2xl shadow-[4px_4px_0px_0px_#000] overflow-hidden flex flex-col">
+                                {/* Navigation Tabs */}
+                                <div className="flex bg-slate-50 p-1.5 gap-1.5 border-b-2 border-black">
                                     {chartTabs.map(tab => (
                                         <button
                                             key={tab.key}
                                             onClick={() => setActiveChart(tab.key)}
-                                            className={`flex-1 py-4 text-center text-body-bold transition-colors border-b-2 ${
+                                            className={`flex-1 py-2 text-xs md:text-sm font-black transition-all rounded-xl border-2 ${
                                                 activeChart === tab.key
-                                                    ? 'border-primary text-primary bg-card'
-                                                    : 'border-transparent text-netral/60 hover:text-netral hover:bg-muted/30'
+                                                    ? 'bg-[#CCF281] text-black border-black shadow-[2px_2px_0px_0px_#000]'
+                                                    : 'bg-transparent text-black/60 border-transparent hover:text-black hover:bg-slate-200/60'
                                             }`}
                                         >
                                             {tab.label}
@@ -232,144 +303,94 @@ export default function Monitoring() {
                                     ))}
                                 </div>
 
-                                {/* Chart Area */}
-                                <div className="p-6">
+                                {/* Chart Area Wrapper */}
+                                <div className="p-5 flex-1 flex flex-col bg-white">
                                     <div className="flex items-center justify-between mb-4">
-                                        <h4 className="text-netral">
-                                            Tren {chartTabs.find(t => t.key === activeChart)?.label}
-                                        </h4>
-                                        <span className="text-small-text text-netral/50">Satuan: {getChartUnit()}</span>
+                                        <div>
+                                            <h3 className="text-sm font-black uppercase tracking-tight">Kurva Tren Perkembangan</h3>
+                                            <p className="text-[11px] font-bold text-black/40">STANDARISASI INDIKATOR WHO</p>
+                                        </div>
+                                        <span className="text-[10px] font-black px-2 py-0.5 bg-black text-white rounded-md border border-black uppercase">
+                                            Unit: {getChartUnit()}
+                                        </span>
                                     </div>
 
-                                    <div className="h-[300px]">
+                                    <div className="h-[280px] w-full border-2 border-black rounded-xl p-2 bg-[#FAF9F5] overflow-hidden">
                                         <ResponsiveContainer width="100%" height="100%">
-                                            {activeChart === 'whtr' ? (
-                                                <AreaChart data={getChartData() as any}>
-                                                    <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" strokeOpacity={0.3} />
-                                                    <XAxis dataKey="minggu" stroke="var(--color-netral)" fontSize={12} tickLine={false} />
-                                                    <YAxis stroke="var(--color-netral)" fontSize={12} tickLine={false} domain={[0.4, 0.6]} />
-                                                    <Tooltip
-                                                        contentStyle={{
-                                                            backgroundColor: 'var(--color-card)',
-                                                            borderColor: 'var(--color-border)',
-                                                            borderRadius: '12px',
-                                                            fontSize: '12px',
-                                                            color: 'var(--color-netral)',
-                                                        }}
-                                                        labelStyle={{ color: 'var(--color-netral)' }}
-                                                        itemStyle={{ color: 'var(--color-netral)' }}
-                                                    />
-                                                    <ReferenceArea y1={0.5} y2={0.6} fill="#f472b6" fillOpacity={0.08} />
-                                                    <ReferenceArea y1={0.4} y2={0.5} fill="#60a5fa" fillOpacity={0.08} />
-                                                    <Line type="monotone" dataKey="threshold" stroke="var(--color-primary)" strokeDasharray="5 5" strokeWidth={1.5} dot={false} />
-                                                    <Area type="monotone" dataKey="anak" stroke="var(--color-secondary)" fill="var(--color-secondary)" fillOpacity={0.15} strokeWidth={2.5} dot={{ r: 4, fill: 'var(--color-secondary)' }} />
-                                                </AreaChart>
-                                            ) : (
-                                                <AreaChart data={getChartData() as any}>
-                                                    <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" strokeOpacity={0.3} />
-                                                    <XAxis dataKey="minggu" stroke="var(--color-netral)" fontSize={12} tickLine={false} />
-                                                    <YAxis stroke="var(--color-netral)" fontSize={12} tickLine={false} />
-                                                    <Tooltip
-                                                        contentStyle={{
-                                                            backgroundColor: 'var(--color-card)',
-                                                            borderColor: 'var(--color-border)',
-                                                            borderRadius: '12px',
-                                                            fontSize: '12px',
-                                                            color: 'var(--color-netral)',
-                                                        }}
-                                                        labelStyle={{ color: 'var(--color-netral)' }}
-                                                        itemStyle={{ color: 'var(--color-netral)' }}
-                                                    />
-                                                    {/* WHO Normal Band */}
-                                                    <Area type="monotone" dataKey="normalMax" stroke="none" fill="#60a5fa" fillOpacity={0.08} />
-                                                    <Area type="monotone" dataKey="normalMin" stroke="none" fill="var(--color-card)" fillOpacity={1} />
-                                                    {/* Overweight Band (if exists) */}
-                                                    {'overweightMax' in ((getChartData() as any)?.[0] || {}) && (
-                                                        <>
-                                                            <Area type="monotone" dataKey="overweightMax" stroke="none" fill="#f472b6" fillOpacity={0.06} />
-                                                        </>
-                                                    )}
-                                                    {/* Child Line */}
-                                                    <Line type="monotone" dataKey="anak" stroke="var(--color-primary)" strokeWidth={2.5} dot={{ r: 4, fill: 'var(--color-primary)', stroke: 'var(--color-card)', strokeWidth: 2 }} activeDot={{ r: 6 }} />
-                                                </AreaChart>
-                                            )}
+                                            {renderChart()}
                                         </ResponsiveContainer>
                                     </div>
 
-                                    {/* Legend */}
-                                    <div className="flex items-center gap-6 mt-4 pt-4 border-t border-border/40">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-3 h-3 rounded-full bg-primary" />
-                                            <span className="text-small-text text-netral/60">Data Anak</span>
+                                    {/* Legend Labels */}
+                                    <div className="flex flex-wrap items-center gap-4 mt-4 pt-3 border-t border-slate-100 text-[11px] font-bold text-black/70 uppercase">
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="w-3.5 h-3.5 bg-[#FEF08A] border border-black rounded"></span>
+                                            <span>Kondisi Riil Anak</span>
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-3 h-3 rounded-sm bg-secondary/20" />
-                                            <span className="text-small-text text-netral/60">Zona Normal WHO</span>
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="w-3.5 h-3.5 bg-[#7DD3FC] border border-black rounded-sm opacity-40"></span>
+                                            <span>Rentang Standar WHO</span>
                                         </div>
                                         {(activeChart === 'bb' || activeChart === 'imt') && (
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-3 h-3 rounded-sm bg-primary/15" />
-                                                <span className="text-small-text text-netral/60">Zona Overweight</span>
+                                            <div className="flex items-center gap-1.5">
+                                                <span className="w-3.5 h-3.5 bg-[#FCA5A5] border border-black rounded-sm opacity-40"></span>
+                                                <span>Ambang Overweight</span>
                                             </div>
                                         )}
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Right: Insight + Radar */}
-                            <div className="flex flex-col gap-6">
-                                {/* Insight Engine Box */}
-                                <div className="bg-card rounded-2xl border border-border/60 shadow-sm p-6">
-                                    <h4 className="text-netral mb-5">Ringkasan Insight</h4>
-                                    <div className="space-y-4">
-                                        <div className="flex items-start gap-3">
-                                            <div className="w-7 h-7 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0 mt-0.5">
-                                                <TrendingDown className="w-3.5 h-3.5 text-secondary" />
-                                            </div>
+                            {/* Right: Insights and Radar Chart */}
+                            <div className="space-y-4 flex flex-col justify-between">
+                                {/* Insights Summary */}
+                                <div className="bg-white border-2 border-black p-5 rounded-2xl shadow-[4px_4px_0px_0px_#000] flex-1 flex flex-col">
+                                    <h3 className="text-sm font-black uppercase mb-3 flex items-center gap-2 border-b border-slate-100 pb-2">
+                                        <Activity className="w-4 h-4 stroke-[2.5]" /> Ringkasan Analisis
+                                    </h3>
+                                    <div className="space-y-2.5 flex-1 overflow-y-auto max-h-[195px] pr-1">
+                                        <div className="flex items-start gap-2.5 bg-[#FCA5A5] p-2.5 rounded-xl border border-black">
+                                            <div className="p-1 bg-white border border-black rounded-lg mt-0.5"><TrendingDown className="w-3.5 h-3.5 stroke-[2.5]" /></div>
                                             <div>
-                                                <p className="text-body-bold text-netral mb-0.5">IMT Menurun</p>
-                                                <p className="text-small-text text-netral/60 leading-relaxed">Kepatuhan naik 20% di M8-12, IMT turun 0.4 poin.</p>
+                                                <h4 className="text-[11px] font-black uppercase">Tren IMT Menurun Halus</h4>
+                                                <p className="text-[10px] font-bold mt-0.5 leading-normal text-black/80">Kepatuhan naik signifikan pada M8-12, memicu penurunan stabil sebesar 0.4 poin.</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-start gap-3">
-                                            <div className="w-7 h-7 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0 mt-0.5">
-                                                <CheckCircle2 className="w-3.5 h-3.5 text-secondary" />
-                                            </div>
+                                        <div className="flex items-start gap-2.5 bg-[#CCF281] p-2.5 rounded-xl border border-black">
+                                            <div className="p-1 bg-white border border-black rounded-lg mt-0.5"><CheckCircle2 className="w-3.5 h-3.5 stroke-[2.5]" /></div>
                                             <div>
-                                                <p className="text-body-bold text-netral mb-0.5">WHtR Normal</p>
-                                                <p className="text-small-text text-netral/60 leading-relaxed">Di bawah ambang 0.5 sejak Minggu 16.</p>
+                                                <h4 className="text-[11px] font-black uppercase">Rasio WHtR Sangat Aman</h4>
+                                                <p className="text-[10px] font-bold mt-0.5 leading-normal text-black/80">Konsisten berada di bawah garis kritis 0.5 sejak memasuki perhitungan Minggu ke-16.</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-start gap-3">
-                                            <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                                                <AlertTriangle className="w-3.5 h-3.5 text-primary" />
-                                            </div>
+                                        <div className="flex items-start gap-2.5 bg-[#FEF08A] p-2.5 rounded-xl border border-black">
+                                            <div className="p-1 bg-white border border-black rounded-lg mt-0.5"><AlertTriangle className="w-3.5 h-3.5 stroke-[2.5]" /></div>
                                             <div>
-                                                <p className="text-body-bold text-netral mb-0.5">Tinggi Badan Melambat</p>
-                                                <p className="text-small-text text-netral/60 leading-relaxed">Evaluasi asupan kalsium dan vitamin D.</p>
+                                                <h4 className="text-[11px] font-black uppercase">Pertumbuhan Tinggi Melambat</h4>
+                                                <p className="text-[10px] font-bold mt-0.5 leading-normal text-black/80">Kurva landai terdeteksi. Disarankan melakukan review asupan Kalsium & Vitamin D3.</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Radar Chart */}
-                                <div className="bg-card rounded-2xl border border-border/60 shadow-sm p-6">
-                                    <h4 className="text-netral mb-4">Radar Perkembangan</h4>
-                                    <div className="h-[250px]">
+                                {/* Radar Chart Mini */}
+                                <div className="bg-white border-2 border-black p-4 rounded-2xl shadow-[4px_4px_0px_0px_#000]">
+                                    <h3 className="text-[11px] font-black uppercase mb-2 text-black/60 tracking-wide">Aspek Tumbuh Kembang</h3>
+                                    <div className="h-[140px] w-full flex items-center justify-center border-2 border-black rounded-xl bg-[#FAF9F5] py-1">
                                         <ResponsiveContainer width="100%" height="100%">
-                                            <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
-                                                <PolarGrid stroke="var(--color-border)" strokeOpacity={0.4} />
-                                                <PolarAngleAxis dataKey="subject" tick={{ fontSize: 11, fill: 'var(--color-netral)' }} />
-                                                <PolarRadiusAxis angle={90} domain={[0, 100]} tick={false} axisLine={false} />
-                                                <Radar name="Perkembangan" dataKey="value" stroke="var(--color-primary)" fill="var(--color-primary)" fillOpacity={0.15} strokeWidth={2} dot={{ r: 3, fill: 'var(--color-primary)' }} />
+                                            <RadarChart cx="50%" cy="50%" outerRadius="65%" data={radarData}>
+                                                <PolarGrid stroke="#CBD5E1" strokeWidth={1} />
+                                                <PolarAngleAxis dataKey="subject" tick={{ fontSize: 8, fontWeight: 800, fill: '#000' }} />
+                                                <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
+                                                <Radar name="Skor" dataKey="value" stroke="#000" fill="#D8B4FE" fillOpacity={0.5} strokeWidth={2.5} dot={{ r: 3.5, fill: '#FFF', stroke: '#000', strokeWidth: 1.5 }} />
                                             </RadarChart>
                                         </ResponsiveContainer>
                                     </div>
-                                    <div className="flex flex-wrap gap-2 mt-2">
+                                    <div className="grid grid-cols-2 gap-1.5 pt-2.5 border-t border-slate-100 mt-2.5 text-[9px] font-bold uppercase">
                                         {radarData.map(item => (
-                                            <div key={item.subject} className="flex items-center gap-1.5 text-small-text text-netral/60">
-                                                <span className="font-bold text-primary">{item.value}%</span>
-                                                {item.subject}
+                                            <div key={item.subject} className="flex justify-between items-center bg-[#EAEFF5] px-2 py-0.5 rounded border border-black">
+                                                <span className="truncate max-w-[70px] text-black/70">{item.subject}</span>
+                                                <span className="bg-black text-white px-1 rounded-sm text-[8px] font-black">{item.value}%</span>
                                             </div>
                                         ))}
                                     </div>
@@ -377,55 +398,60 @@ export default function Monitoring() {
                             </div>
                         </div>
 
-                        {/* Row 3: Compliance Heatmap */}
-                        <div className="bg-card rounded-2xl border border-border/60 shadow-sm p-6 mb-8">
-                            <div className="flex items-center justify-between mb-6">
-                                <h4 className="text-netral">Kalender Kepatuhan Aktivitas</h4>
-                                <div className="flex items-center gap-4">
+                        {/* ---------- ROW 3: COMPLIANCE HEATMAP ---------- */}
+                        <div className="bg-white border-2 border-black p-5 rounded-2xl shadow-[4px_4px_0px_0px_#000]">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 border-b border-slate-100 pb-3">
+                                <div>
+                                    <h3 className="text-sm font-black uppercase">Matriks Kepatuhan Rutinitas Harian</h3>
+                                    <p className="text-[11px] font-bold text-black/40">VISUALISASI KONSISTENSI AGENDA PROGRAM PER HARI</p>
+                                </div>
+                                <div className="flex items-center gap-3 text-[10px] font-black uppercase">
                                     <div className="flex items-center gap-1.5">
-                                        <div className="w-3 h-3 rounded-sm bg-secondary" />
-                                        <span className="text-small-text text-netral/60">Selesai</span>
+                                        <div className="w-3.5 h-3.5 bg-black border border-black rounded" />
+                                        <span>Selesai</span>
                                     </div>
                                     <div className="flex items-center gap-1.5">
-                                        <div className="w-3 h-3 rounded-sm bg-background border border-border/60" />
-                                        <span className="text-small-text text-netral/60">Kosong</span>
+                                        <div className="w-3.5 h-3.5 bg-white border-2 border-black rounded" />
+                                        <span>Kosong</span>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div className="overflow-x-auto">
-                                <div className="inline-flex flex-col gap-1 min-w-fit">
-                                    {/* Day labels */}
-                                    <div className="flex gap-1 mb-1">
-                                        <div className="w-8 shrink-0" /> {/* Spacer for week labels */}
-                                        {['S', 'S', 'R', 'K', 'J', 'S', 'M'].map((d, i) => (
-                                            <div key={i} className="w-4 h-4 flex items-center justify-center text-[9px] text-netral/40">{d}</div>
+
+                            <div className="overflow-x-auto pb-1">
+                                <div className="inline-flex items-start gap-2.5 p-0.5 min-w-max">
+                                    {/* Row Labels (Hari) */}
+                                    <div className="flex flex-col gap-1.5 pt-5 font-black text-[9px] w-7 text-left text-black/50">
+                                        {dayLabels.map((day, i) => (
+                                            <div key={i} className="h-3.5 flex items-center">{day}</div>
                                         ))}
                                     </div>
-                                    {/* Week rows */}
-                                    {Array.from({ length: 24 }, (_, w) => (
-                                        <div key={w} className="flex items-center gap-1">
-                                            <span className="w-8 text-[9px] text-netral/40 text-right pr-1 shrink-0">
-                                                {(w + 1) % 4 === 1 ? `M${w + 1}` : ''}
-                                            </span>
-                                            {Array.from({ length: 7 }, (_, d) => {
-                                                const cell = heatmapData.find(c => c.week === w + 1 && c.day === d);
-                                                return (
-                                                    <div
-                                                        key={d}
-                                                        className={`w-4 h-4 rounded-sm transition-colors ${
-                                                            cell?.done
-                                                                ? 'bg-secondary'
-                                                                : w + 1 <= 12
-                                                                    ? 'bg-background border border-border/60'
-                                                                    : 'bg-muted/30'
-                                                        }`}
-                                                        title={`Minggu ${w + 1}, Hari ${d + 1}: ${cell?.done ? 'Selesai' : 'Kosong'}`}
-                                                    />
-                                                );
-                                            })}
-                                        </div>
-                                    ))}
+
+                                    {/* Heatmap Grid */}
+                                    <div className="flex gap-1">
+                                        {Array.from({ length: 24 }, (_, w) => (
+                                            <div key={w} className="flex flex-col gap-1.5">
+                                                <span className="text-[8px] font-black h-3.5 flex items-center justify-center bg-black text-white border border-black rounded">
+                                                    {(w + 1) % 4 === 1 || w === 0 ? `M${w + 1}` : `..`}
+                                                </span>
+                                                {Array.from({ length: 7 }, (_, d) => {
+                                                    const cell = heatmapData.find(c => c.week === w + 1 && c.day === d);
+                                                    return (
+                                                        <div
+                                                            key={d}
+                                                            className={`w-3.5 h-3.5 transition-all cursor-pointer border-2 border-black rounded-[4px] ${
+                                                                cell?.done
+                                                                    ? 'bg-black hover:bg-slate-800'
+                                                                    : w + 1 <= 12
+                                                                        ? 'bg-white hover:bg-slate-100'
+                                                                        : 'bg-slate-100 border-dashed border-slate-300'
+                                                            }`}
+                                                            title={`Minggu ${w + 1}, Hari ke-${d + 1}: ${cell?.done ? 'Selesai' : 'Tidak Ada Aktivitas'}`}
+                                                        />
+                                                    );
+                                                })}
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -1,78 +1,118 @@
 import React from 'react';
-import Badge from '../Badges/Badge';
-import Button from '../Buttons/Button';
-import { Check, Square, Play } from 'lucide-react';
+import { Check, Play, FileText, Sparkles } from 'lucide-react';
 
 export default function TaskListCard() {
     return (
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-border">
-            <div className="flex justify-between items-start mb-6">
-                <div>
-                    <div className="flex items-center gap-3 mb-1">
-                        <div className="w-6 h-6 rounded bg-primary/20 flex items-center justify-center text-primary">
-                            <Check className="w-4 h-4" strokeWidth={3} />
-                        </div>
-                        <h3 className="text-netral">Tugas Hari Ini</h3>
+        <div className="bg-[#fffdf4] border-3 border-black rounded-2xl p-5 md:p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            
+            {/* CARD HEADER */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b-3 border-black pb-5 mb-5">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-[#a3e635] border-2 border-black flex items-center justify-center text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                        <Sparkles className="w-4 h-4" strokeWidth={3} />
                     </div>
-                    <p className="text-body-thin text-netral mt-2">Selesaikan 3 tugas untuk mencapai target mingguan Anda.</p>
+                    <div>
+                        <h3 className="text-lg font-black uppercase tracking-tight text-black">Tugas Hari Ini</h3>
+                        <p className="text-xs font-bold text-black/50 uppercase tracking-wide mt-0.5">Selesaikan target program Anda</p>
+                    </div>
                 </div>
-                <Badge variant="primary">1/3 Selesai</Badge>
+                <span className="bg-[#00a6ff] text-white border-2 border-black px-3 py-1 text-xs font-black uppercase tracking-wider rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                    1/3 Selesai
+                </span>
             </div>
 
+            {/* TASK LIST CONTAINER */}
             <div className="space-y-4">
-                <div className="flex items-start gap-4 p-4 border-b border-border/50">
-                    <div className="mt-1">
-                        <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center text-white shadow-sm">
+                
+                {/* TASK 1: SELESAI */}
+                <div className="flex items-start gap-4 p-4 bg-black/5 border-2 border-black/20 rounded-xl opacity-60">
+                    <div className="mt-0.5">
+                        <div className="w-6 h-6 rounded-lg bg-[#a3e635] border-2 border-black flex items-center justify-center text-black shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
                             <Check className="w-4 h-4" strokeWidth={3} />
                         </div>
                     </div>
-                    <div className="flex-1">
-                        <div className="text-body-bold text-netral/50 line-through mb-1">Catat Jadwal Tidur Anak</div>
-                        <p className="text-body-thin text-netral/50 line-through">Catat jam tidur siang dan malam untuk observasi pola.</p>
+                    <div className="flex-1 min-w-0">
+                        <div className="text-sm font-black uppercase tracking-wide text-black/70 line-through">
+                            Catat Jadwal Tidur Anak
+                        </div>
+                        <p className="text-xs font-bold text-black/50 mt-1">
+                            Catat jam tidur siang dan malam untuk observasi pola.
+                        </p>
                     </div>
-                    <Badge variant="secondary">Selesai</Badge>
+                    <span className="bg-black text-white border-2 border-black px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md shrink-0">
+                        Selesai
+                    </span>
                 </div>
 
-                <div className="flex items-start gap-4 p-4 border-b border-border/50">
-                    <div className="mt-1">
-                        <div className="w-6 h-6 rounded-lg border-2 border-primary/40 dark:border-primary/60 flex items-center justify-center"></div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-2 flex-wrap">
-                            <div className="text-body-bold text-netral">Tonton Video: Stimulasi Bahasa</div>
-                            <Badge variant="danger">Penting</Badge>
+                {/* TASK 2: BELUM SELESAI (VIDEO STIMULASI - PENTING) */}
+                <div className="flex flex-col gap-4 p-4 bg-white border-3 border-black rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                    <div className="flex items-start gap-4">
+                        <div className="mt-0.5 shrink-0">
+                            <div className="w-6 h-6 rounded-lg border-2 border-black bg-white"></div>
                         </div>
-                        <p className="text-body-thin text-netral">Pelajari teknik dasar merespons ocehan bayi untuk mendorong perkembangan bahasa.</p>
-                        
-                        <div className="mt-4 flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between w-full">
-                            <div className="w-full sm:w-52 h-32 bg-netral/10 dark:bg-white/5 rounded-lg relative overflow-hidden flex items-center justify-center shadow-inner group cursor-pointer border border-border shrink-0">
-                                <div className="absolute inset-0 bg-cover bg-center opacity-60 dark:opacity-40" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1555252333-9f8e92e65df9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')" }}></div>
-                                <div className="w-12 h-12 rounded-full bg-white/90 dark:bg-white flex items-center justify-center shadow-sm text-primary group-hover:scale-110 transition-all z-10">
-                                    <Play className="w-5 h-5 ml-1 fill-primary" />
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <div className="text-sm font-black uppercase tracking-wide text-black">
+                                    Tonton Video: Stimulasi Bahasa
                                 </div>
-                                <div className="absolute bottom-2 right-2 bg-black/60 text-[#ffffff] text-[10px] px-2 py-0.5 rounded font-medium z-10">
-                                    05:24
+                                <span className="bg-[#ff4a4a] text-white border-2 border-black px-2 py-0.5 text-[9px] font-black uppercase tracking-wider rounded-md shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                                    Penting
+                                </span>
+                            </div>
+                            <p className="text-xs font-bold text-black/60 mt-1 leading-relaxed">
+                                Pelajari teknik dasar merespons ocehan bayi untuk mendorong perkembangan bahasa.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    {/* Video Thumbnail & Action Row */}
+                    <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between pl-0 sm:pl-10">
+                        {/* Thumbnail */}
+                        <div className="w-full sm:w-44 h-24 bg-black border-2 border-black rounded-lg relative overflow-hidden shrink-0 group cursor-pointer shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                            <img 
+                                src="https://images.unsplash.com/photo-1555252333-9f8e92e65df9?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" 
+                                alt="Stimulasi Bahasa"
+                                className="w-full h-full object-cover opacity-70 group-hover:scale-105 transition-transform duration-200"
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="w-9 h-9 rounded-full bg-[#f472b6] border-2 border-black flex items-center justify-center text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] group-hover:translate-x-[-1px] group-hover:translate-y-[-1px] group-hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all">
+                                    <Play className="w-4 h-4 fill-black ml-0.5" />
                                 </div>
                             </div>
-                            <Button variant="primary" size="md" className="w-full sm:w-auto">Mulai Tonton</Button>
+                            <div className="absolute bottom-1 right-1 bg-black text-white text-[9px] px-1.5 py-0.5 border border-black rounded font-black">
+                                05:24
+                            </div>
                         </div>
+                        
+                        {/* Button Action */}
+                        <button className="bg-[#f472b6] text-black border-2 border-black font-black uppercase tracking-wide text-xs px-4 py-2.5 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all flex items-center justify-center gap-2">
+                            <Play className="w-3.5 h-3.5 fill-black" /> Mulai Tonton
+                        </button>
                     </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4">
+                {/* TASK 3: BELUM SELESAI (ISI JURNAL) */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-4 bg-white border-3 border-black rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
                     <div className="flex items-start gap-4 flex-1">
-                        <div className="mt-1">
-                            <div className="w-6 h-6 rounded-lg border-2 border-primary/40 dark:border-primary/60 flex items-center justify-center"></div>
+                        <div className="mt-0.5 shrink-0">
+                            <div className="w-6 h-6 rounded-lg border-2 border-black bg-white"></div>
                         </div>
-                        <div className="flex-1">
-                            <div className="text-body-bold text-netral mb-1">Isi Jurnal Perasaan Hari Ini</div>
-                            <p className="text-body-thin text-netral">Luangkan waktu 2 menit untuk mencatat emosi Anda hari ini.</p>
+                        <div className="flex-1 min-w-0">
+                            <div className="text-sm font-black uppercase tracking-wide text-black">
+                                Isi Jurnal Perasaan Hari Ini
+                            </div>
+                            <p className="text-xs font-bold text-black/60 mt-1">
+                                Luangkan waktu 2 menit untuk mencatat emosi Anda hari ini.
+                            </p>
                         </div>
                     </div>
-                    <div className="w-full sm:w-auto pl-10 sm:pl-0">
-                        <Button variant="secondary-outline" size="md" className="w-full sm:w-auto dark:border-secondary/60 dark:hover:bg-secondary/20">Isi Jurnal</Button>
+                    <div className="pl-0 sm:pl-10 shrink-0">
+                        <button className="w-full sm:w-auto bg-white text-black border-2 border-black font-black uppercase tracking-wide text-xs px-4 py-2.5 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all flex items-center justify-center gap-2">
+                            <FileText className="w-3.5 h-3.5" /> Isi Jurnal
+                        </button>
                     </div>
                 </div>
+
             </div>
         </div>
     );

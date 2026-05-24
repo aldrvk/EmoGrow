@@ -10,47 +10,70 @@ export default function ProgressTimelineCard() {
     ];
 
     return (
-        <div className="bg-white rounded-2xl p-8 shadow-sm border border-border h-full">
-            <h3 className="text-netral mb-1">Progress Intervensi</h3>
-            <p className="text-body-thin text-netral mb-8">Minggu ke-12 dari 24</p>
+        <div className="bg-[#fbfbf4] rounded-[2rem] p-6 border-3 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] h-full">
+            {/* Header Card */}
+            <div className="border-b-2 border-black pb-4 mb-6">
+                <h3 className="text-md font-black uppercase tracking-wide text-black">
+                    Progress Intervensi
+                </h3>
+                <p className="text-[11px] font-extrabold uppercase tracking-wider text-black/60 mt-1">
+                    Minggu ke-12 dari 24
+                </p>
+            </div>
             
-            <div className="relative border-l-2 border-netral/20 ml-3 pl-8 space-y-8 mt-4">
+            {/* Timeline Container */}
+            <div className="relative border-l-3 border-black ml-4 pl-8 space-y-8 my-4">
                 {timeline.map((item, idx) => (
                     <div key={idx} className="relative">
-                        <div className={`absolute -left-[43px] w-6 h-6 rounded-full flex items-center justify-center bg-white ${
-                            item.status === 'completed' ? 'border-none' : 
-                            item.status === 'current' ? 'border-2 border-primary' : 'border-none'
-                        }`}>
+                        
+                        {/* Timeline Indicator Node */}
+                        <div className="absolute -left-[45px] top-0.5 w-7 h-7 rounded-full flex items-center justify-center bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] z-10">
                             {item.status === 'completed' && (
-                                <div className="w-5 h-5 rounded-full bg-secondary text-white flex items-center justify-center">
-                                    <Check className="w-3 h-3" strokeWidth={3} />
+                                <div className="w-full h-full rounded-full bg-[#a3e635] flex items-center justify-center">
+                                    <Check className="w-3.5 h-3.5 text-black" strokeWidth={3.5} />
                                 </div>
                             )}
                             {item.status === 'current' && (
-                                <div className="w-2 h-2 rounded-full bg-primary"></div>
+                                <div className="w-3 h-3 rounded-full bg-[#f472b6] animate-pulse"></div>
                             )}
                             {item.status === 'upcoming' && (
-                                <div className="w-4 h-4 rounded-full bg-netral/60"></div>
+                                <div className="w-3 h-3 rounded-full bg-black/20"></div>
                             )}
                         </div>
                         
-                        <div>
-                            <div className={`text-body-bold ${item.status === 'current' ? 'text-primary' : 'text-netral'}`}>
+                        {/* Content Card Node */}
+                        <div className={`p-4 rounded-xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-transform ${
+                            item.status === 'current' 
+                                ? 'bg-white translate-x-[-2px] translate-y-[-2px] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' 
+                                : item.status === 'completed'
+                                ? 'bg-black/[0.02]'
+                                : 'bg-black/[0.05] opacity-60 shadow-none border-dashed'
+                        }`}>
+                            <div className={`text-xs uppercase tracking-wide font-black ${
+                                item.status === 'current' ? 'text-[#f472b6]' : 'text-black'
+                            }`}>
                                 {item.title}
                             </div>
-                            <p className={`text-body-thin ${item.status === 'current' ? 'text-primary/80' : 'text-netral/70'} mt-1`}>
+                            <p className="text-xs font-extrabold text-black/70 mt-1 uppercase tracking-tight">
                                 {item.desc}
                             </p>
                             
+                            {/* Progress Bar (Hanya untuk item berstatus 'current') */}
                             {item.status === 'current' && item.progress && (
-                                <div className="mt-3">
-                                    <div className="h-1.5 w-full bg-primary/10 rounded-full overflow-hidden mb-1">
-                                        <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${item.progress}%` }}></div>
+                                <div className="mt-4 pt-3 border-t-2 border-black/5">
+                                    <div className="h-4 w-full bg-white border-2 border-black rounded-lg overflow-hidden relative">
+                                        <div 
+                                            className="h-full bg-[#a3e635] border-r-2 border-black transition-all duration-500" 
+                                            style={{ width: `${item.progress}%` }}
+                                        ></div>
                                     </div>
-                                    <p className="text-small-text text-primary">{item.progress}% Selesai</p>
+                                    <p className="text-[10px] font-black uppercase tracking-wider text-black mt-1.5 text-right">
+                                        {item.progress}% Selesai
+                                    </p>
                                 </div>
                             )}
                         </div>
+
                     </div>
                 ))}
             </div>
