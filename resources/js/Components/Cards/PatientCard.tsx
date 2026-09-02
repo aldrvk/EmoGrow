@@ -1,44 +1,75 @@
 import React from 'react';
-import StatusBadge from '../Badges/StatusBadge';
 
-interface PatientCardProps {
+export interface PatientCardProps {
     name: string;
     age: string;
     status: string;
     img: string;
+    progressPercent?: number;
     isActive?: boolean;
     onClick?: () => void;
 }
 
-export default function PatientCard({ name, age, status, img, isActive = true, onClick }: PatientCardProps) {
+export default function PatientCard({
+    name,
+    age,
+    status,
+    img,
+    progressPercent = 50,
+    isActive = false,
+    onClick
+}: PatientCardProps) {
+    const getStatusBadgeStyle = (s: string) => {
+        if (s === 'Normal') return 'bg-success text-black';
+        if (s === 'Kurus') return 'bg-info text-white';
+        if (s === 'Beresiko Gizi Lebih') return 'bg-warning text-black';
+        return 'bg-danger text-white';
+    };
+
     return (
-        <div 
+        <div
             onClick={onClick}
-            className={`rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between border shadow-sm gap-6 md:gap-0 cursor-pointer transition-all ${
-                isActive ? 'bg-primary/10 border-primary/40 shadow-md ring-1 ring-primary/20' : 'bg-white border-border/50 hover:border-primary/30 opacity-70 hover:opacity-100'
-            }`}
+            className={`w-full bg-card border-3 border-black rounded-2xl p-5 
+                flex flex-col md:flex-row justify-between items-center gap-6 select-none transition-all duration-150 cursor-pointer
+                ${isActive 
+                    ? 'shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-card-subtle translate-x-[-2px] translate-y-[-2px]' 
+                    : 'shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px]'
+                }`}
         >
-            <div className="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left w-full md:w-auto">
-                <div className="w-20 h-20 rounded-2xl bg-white p-1.5 shadow-sm flex items-center justify-center border border-gray-100 shrink-0">
-                    <img src={img} alt={name} className="w-full h-full rounded-xl object-cover" />
+            <div className="flex items-center gap-4 w-full md:w-auto">
+                <div className="relative w-16 h-16 min-w-[64px] border-3 border-black rounded-xl bg-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] overflow-hidden shrink-0">
+                    <img 
+                        src={img} 
+                        alt={name} 
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                            (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=f472b6&color=000`;
+                        }}
+                    />
                 </div>
-                <div>
-                    <h2 className="text-netral text-xl font-bold">{name}</h2>
-                    <p className="text-body-thin text-netral mb-2">{age}</p>
-                    <StatusBadge status={status} variant={status === 'Normal' ? 'secondary' : (status === 'Belum Diukur' ? 'primary' : 'warning')} />
+                <div className="space-y-1.5 min-w-0">
+                    <h2 className="text-xl font-black uppercase tracking-tight text-black dark:text-white leading-tight truncate">{name}</h2>
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <span className="bg-info text-white border-2 border-black px-2.5 py-0.5 text-xs font-black uppercase tracking-wide rounded-lg shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
+                            {age}
+                        </span>
+                        <span className={`border-2 border-black px-2.5 py-0.5 text-xs font-black uppercase tracking-wide rounded-lg shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] ${getStatusBadgeStyle(status)}`}>
+                            {status}
+                        </span>
+                    </div>
                 </div>
             </div>
-            
-            <div className="w-full md:w-1/2 max-w-lg md:mr-4">
-                <div className="flex justify-between items-end mb-2">
-                    <span className="text-label-text text-netral font-semibold uppercase">Progres Program Intervensi</span>
-                    <span className="text-small-text text-netral">Minggu 12 dari 24</span>
+
+            <div className="w-full md:w-72 bg-card-subtle border-3 border-black p-3.5 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] space-y-2 shrink-0">
+                <div className="flex justify-between items-end">
+                    <p className="text-xs font-black uppercase tracking-wider text-black dark:text-white">Progres Intervensi</p>
+                    <span className="text-xs font-black uppercase text-primary">{progressPercent}% Selesai</span>
                 </div>
-                <div className="h-2.5 w-full bg-white rounded-full overflow-hidden mb-1 shadow-sm border border-border/50">
-                    <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: '50%' }}></div>
-                </div>
-                <div className="text-right">
-                    <span className="text-small-text text-primary font-medium">50% Selesai</span>
+                <div className="w-full bg-muted border-2 border-black h-4 rounded-full overflow-hidden p-0.5">
+                    <div 
+                        className="bg-primary h-full rounded-full transition-all duration-500" 
+                        style={{ width: `${progressPercent}%` }} 
+                    />
                 </div>
             </div>
         </div>

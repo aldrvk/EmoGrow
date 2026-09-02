@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { LayoutDashboard, Users, BookOpen, Activity, LineChart, FileText, LogOut, ChevronLeft, ChevronRight, X, Shield } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, Activity, LineChart, FileText, LogOut, ChevronLeft, ChevronRight, X, Shield, Sparkles } from 'lucide-react';
 import { Link, usePage } from '@inertiajs/react';
 
 interface SidebarProps {
@@ -19,7 +19,7 @@ const menuItems = [
 
 export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
     const [isCollapsed, setIsCollapsed] = useState(false);
-    const [width, setWidth] = useState(260); // Disesuaikan sedikit lebih lebar untuk neubrutalism padding
+    const [width, setWidth] = useState(260);
     const sidebarRef = useRef<HTMLDivElement>(null);
     const isResizing = useRef(false);
     const { url } = usePage();
@@ -29,15 +29,17 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             if (!isResizing.current) return;
             let newWidth = e.clientX;
             if (newWidth < 90) newWidth = 90;
-            if (newWidth > 400) newWidth = 400;
+            if (newWidth > 360) newWidth = 360;
             setWidth(newWidth);
             if (newWidth < 140 && !isCollapsed) setIsCollapsed(true);
             if (newWidth >= 140 && isCollapsed) setIsCollapsed(false);
         };
 
         const handleMouseUp = () => {
-            isResizing.current = false;
-            document.body.style.cursor = 'default';
+            if (isResizing.current) {
+                isResizing.current = false;
+                document.body.style.cursor = 'default';
+            }
         };
 
         document.addEventListener('mousemove', handleMouseMove);
@@ -46,6 +48,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
         return () => {
             document.removeEventListener('mousemove', handleMouseMove);
             document.removeEventListener('mouseup', handleMouseUp);
+            document.body.style.cursor = 'default'; // Safety cleanup on unmount
         };
     }, [isCollapsed]);
 
@@ -60,16 +63,16 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             {/* Mobile Overlay */}
             {isOpen && (
                 <div 
-                    className="fixed inset-0 bg-black/40 z-40 md:hidden backdrop-blur-sm transition-opacity duration-300"
+                    className="fixed inset-0 bg-black/40 z-40 md:hidden backdrop-blur-xs transition-opacity duration-300"
                     onClick={onClose}
                 />
             )}
 
-            <div 
+            <aside 
                 ref={sidebarRef}
                 style={{ width: isOpen ? 260 : (isCollapsed ? 90 : width) }}
-                className={`fixed inset-y-0 left-0 z-50 bg-[#fbfbf4] border-r-3 md:border-3 border-black shadow-[4px_0px_0px_0px_rgba(0,0,0,1)] md:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] 
-                            md:m-3 md:rounded-[2rem] min-h-[calc(100vh-24px)] flex flex-col transition-all duration-300 ease-out md:relative md:translate-x-0 
+                className={`fixed inset-y-0 left-0 z-50 bg-sidebar border-r-3 md:border-3 border-black shadow-[4px_0px_0px_0px_rgba(0,0,0,1)] md:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] 
+                            md:m-3 md:rounded-[2rem] min-h-[calc(100vh-24px)] flex flex-col transition-all duration-300 ease-out md:relative md:translate-x-0 select-none
                             ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
             >
                 {/* Resize Handle (Desktop Only) */}
@@ -81,23 +84,27 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                 {/* Header Brand */}
                 <div className={`h-24 flex items-center relative border-b-2 border-black/10 ${isCollapsed ? 'justify-center px-0' : 'px-6'}`}>
                     {!isCollapsed ? (
-                        <div className="flex items-center gap-3 truncate transition-all duration-300 animate-in fade-in zoom-in-95">
-                            <div className="w-10 h-10 bg-[#a3e635] border-2 border-black flex items-center justify-center text-black rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0">
-                                <LayoutDashboard className="w-5 h-5" strokeWidth={2.5} />
+                        <Link href="/" className="flex items-center gap-3 truncate transition-all duration-300 animate-in fade-in zoom-in-95 group">
+                            <div className="w-10 h-10 bg-success border-2 border-black flex items-center justify-center text-black rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0 group-hover:translate-x-[-1px] group-hover:translate-y-[-1px] group-hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all">
+                                <Sparkles className="w-5 h-5 stroke-[2.5]" />
                             </div>
                             <div className="truncate">
-                                <h2 className="text-lg font-black tracking-tight text-black uppercase">EmoGROW</h2>
-                                <p className="text-[10px] font-extrabold text-black/60 uppercase tracking-wider -mt-0.5 truncate">Professionalism</p>
+                                <h2 className="text-lg font-black tracking-tight text-black dark:text-white uppercase">EmoGROW</h2>
+                                <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider -mt-0.5 truncate">Tumbuh Kembang</p>
                             </div>
-                        </div>
+                        </Link>
                     ) : (
-                        <div className="w-11 h-11 bg-[#a3e635] border-2 border-black flex items-center justify-center text-black rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
-                            <LayoutDashboard className="w-5 h-5" strokeWidth={2.5} />
-                        </div>
+                        <Link href="/" className="w-11 h-11 bg-success border-2 border-black flex items-center justify-center text-black rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all hover:scale-105">
+                            <Sparkles className="w-5 h-5 stroke-[2.5]" />
+                        </Link>
                     )}
                     
                     {/* Mobile Close Button */}
-                    <button onClick={onClose} className="md:hidden absolute right-4 p-1.5 bg-red-100 border-2 border-black rounded-xl text-black hover:bg-red-200 transition-all">
+                    <button 
+                        onClick={onClose} 
+                        className="md:hidden absolute right-4 p-1.5 bg-red-100 border-2 border-black rounded-xl text-black hover:bg-red-200 transition-all cursor-pointer"
+                        aria-label="Tutup Menu"
+                    >
                         <X className="w-5 h-5" strokeWidth={2.5} />
                     </button>
                 </div>
@@ -111,17 +118,17 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                         }
                         
                         const Icon = item.icon;
-                        const isActive = url === item.route;
+                        const isActive = url === item.route || (item.route !== '/' && url.startsWith(item.route));
                         
                         return (
                             <Link
                                 key={index}
                                 href={item.route}
-                                className={`flex items-center py-3 rounded-xl border-2 border-transparent transition-all duration-200 group
+                                className={`flex items-center py-3 rounded-xl border-2 transition-all duration-150 group cursor-pointer
                                            ${isCollapsed ? 'justify-center px-0' : 'px-4'} 
                                            ${isActive
-                                                ? 'bg-[#a3e635] text-black border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] translate-x-[-2px] translate-y-[-2px]'
-                                                : 'text-black/80 hover:bg-white hover:border-black hover:text-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
+                                                ? 'bg-success text-black border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] translate-x-[-2px] translate-y-[-2px]'
+                                                : 'border-transparent text-foreground hover:bg-card hover:border-black hover:text-foreground hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
                                            }`}
                                 title={isCollapsed ? item.name : undefined}
                             >
@@ -142,7 +149,8 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                     <div className="hidden md:flex justify-center">
                         <button 
                             onClick={() => setIsCollapsed(!isCollapsed)}
-                            className="w-full py-1.5 flex items-center justify-center bg-white border-2 border-black rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-black hover:bg-yellow-50 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
+                            className="w-full py-1.5 flex items-center justify-center bg-card border-2 border-black rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-foreground hover:bg-card-subtle active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer"
+                            aria-label={isCollapsed ? "Buka Sidebar" : "Kecilkan Sidebar"}
                         >
                             {isCollapsed ? <ChevronRight className="w-4 h-4" strokeWidth={2.5} /> : <ChevronLeft className="w-4 h-4" strokeWidth={2.5} />}
                         </button>
@@ -152,15 +160,15 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                     <div className={`${isCollapsed ? 'flex justify-center' : ''}`}>
                         <Link 
                             href="/login" 
-                            className={`w-full flex items-center py-2.5 rounded-xl border-2 border-transparent text-black/70 hover:text-red-600 hover:bg-red-50 hover:border-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all group ${isCollapsed ? 'justify-center px-0' : 'px-4'}`} 
-                            title={isCollapsed ? "Logout" : undefined}
+                            className={`w-full flex items-center py-2.5 rounded-xl border-2 border-transparent text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 dark:hover:text-red-400 hover:border-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all group ${isCollapsed ? 'justify-center px-0' : 'px-4'}`} 
+                            title={isCollapsed ? "Keluar" : undefined}
                         >
                             <LogOut className={`w-5 h-5 shrink-0 transition-transform group-hover:translate-x-0.5 ${!isCollapsed ? 'mr-3.5' : ''}`} strokeWidth={2} />
-                            {!isCollapsed && <span className="text-xs uppercase tracking-wide font-extrabold truncate">Logout</span>}
+                            {!isCollapsed && <span className="text-xs uppercase tracking-wide font-extrabold truncate">Keluar</span>}
                         </Link>
                     </div>
                 </div>
-            </div>
+            </aside>
         </>
     );
 }

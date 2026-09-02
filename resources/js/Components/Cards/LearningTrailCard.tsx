@@ -20,54 +20,55 @@ export default function LearningTrailCard({
     className = "" 
 }: LearningTrailCardProps) {
     return (
-        <div className={`bg-white rounded-2xl border border-border/60 shadow-sm p-8 relative overflow-hidden ${className}`}>
-            <div className="absolute top-0 left-0 w-full h-1.5 bg-primary"></div>
-            <h3 className="text-section-title text-primary mb-8 mt-2">{title}</h3>
+        <div className={`bg-card rounded-2xl border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-6 md:p-7 select-none ${className}`}>
+            <h3 className="text-lg font-black uppercase tracking-tight text-black dark:text-white mb-6 pb-4 border-b-3 border-black flex items-center justify-between">
+                <span>{title}</span>
+            </h3>
             
             <div className="relative">
                 {/* Continuous Vertical Line */}
-                <div className="absolute left-[11px] top-[14px] bottom-[14px] w-0.5 bg-[#CBD5E1]"></div>
+                <div className="absolute left-[13px] top-[14px] bottom-[14px] w-1 bg-black"></div>
                 
-                <div className="space-y-8 relative z-10">
-                    {modules.map((mod, index) => {
+                <div className="space-y-6 relative z-10">
+                    {modules.map((mod) => {
                         const isCompleted = mod.status === 'completed';
                         const isCurrent = mod.status === 'current';
                         const isLocked = mod.status === 'locked';
 
                         return (
-                            <div key={mod.id} className={`relative ${isCurrent ? '' : 'pl-10'}`}>
+                            <div key={mod.id} className={`relative ${isCurrent ? '' : 'pl-11'}`}>
                                 {isCompleted && (
                                     <>
-                                        <div className="absolute left-0 top-1 w-[24px] h-[24px] rounded-full bg-secondary flex items-center justify-center z-10 ring-[6px] ring-white">
-                                            <Check className="w-3.5 h-3.5 text-white stroke-[3]" />
+                                        <div className="absolute left-0 top-0.5 w-7 h-7 rounded-xl bg-success border-2 border-black flex items-center justify-center z-10 text-black shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
+                                            <Check className="w-4 h-4 stroke-[3]" />
                                         </div>
                                         <div>
-                                            <p className="text-[13px] font-medium text-[#94A3B8] mb-0.5">{mod.subtitle}</p>
-                                            <p className="text-[16px] font-medium text-[#334155]">{mod.title}</p>
+                                            <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground mb-0.5">{mod.subtitle}</p>
+                                            <p className="text-sm font-black text-black dark:text-white uppercase tracking-tight">{mod.title}</p>
                                         </div>
                                     </>
                                 )}
 
                                 {isCurrent && (
-                                    <>
-                                        <div className="ml-[12px] bg-primary/5 border border-primary/20 rounded-[16px] py-3.5 pl-[28px] pr-4 relative z-0">
-                                            <div className="absolute -left-[12px] top-1/2 -translate-y-1/2 w-[24px] h-[24px] rounded-full bg-white border-[2px] border-primary z-10 ring-[6px] ring-white flex items-center justify-center">
-                                                <Play className="w-2.5 h-2.5 text-primary fill-primary ml-0.5" />
-                                            </div>
-                                            <p className="text-[13px] font-medium text-primary mb-0.5">{mod.subtitle}</p>
-                                            <p className="text-[16px] font-medium text-secondary">{mod.title}</p>
+                                    <div className="ml-0 bg-card-subtle border-3 border-black rounded-xl p-4 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] relative z-0 flex items-start gap-3.5">
+                                        <div className="w-7 h-7 rounded-xl bg-primary border-2 border-black text-black z-10 flex items-center justify-center shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] shrink-0 mt-0.5">
+                                            <Play className="w-3.5 h-3.5 fill-black ml-0.5" />
                                         </div>
-                                    </>
+                                        <div>
+                                            <p className="text-[10px] font-black uppercase tracking-wider text-primary mb-0.5">{mod.subtitle}</p>
+                                            <p className="text-sm font-black text-black dark:text-white uppercase tracking-tight">{mod.title}</p>
+                                        </div>
+                                    </div>
                                 )}
 
                                 {isLocked && (
                                     <>
-                                        <div className="absolute left-0 top-1 w-[24px] h-[24px] rounded-full bg-white border-[1.5px] border-[#CBD5E1] flex items-center justify-center z-10 ring-[6px] ring-white">
-                                            <Lock className="w-3.5 h-3.5 text-[#CBD5E1]" />
+                                        <div className="absolute left-0 top-0.5 w-7 h-7 rounded-xl bg-muted border-2 border-black/40 flex items-center justify-center z-10 text-muted-foreground/60">
+                                            <Lock className="w-3.5 h-3.5" />
                                         </div>
-                                        <div>
-                                            <p className="text-[13px] font-medium text-[#CBD5E1] mb-0.5">{mod.subtitle}</p>
-                                            <p className="text-[16px] font-medium text-[#94A3B8]">{mod.title}</p>
+                                        <div className="opacity-50">
+                                            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-0.5">{mod.subtitle}</p>
+                                            <p className="text-sm font-bold text-black dark:text-white uppercase tracking-tight">{mod.title}</p>
                                         </div>
                                     </>
                                 )}

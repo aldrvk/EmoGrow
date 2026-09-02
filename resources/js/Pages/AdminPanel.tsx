@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
+import { Head } from '@inertiajs/react';
 import Sidebar from '../Components/Layout/Sidebar';
 import Header from '../Components/Layout/Header';
+import Badge from '../Components/Badges/Badge';
+import Toast from '../Components/UI/Toast';
 import {
     Shield, Star, CheckCircle, Clock, Search, X, Baby,
     TrendingUp, Ruler, Scale, Activity, ChevronDown, Eye,
     Plus, Pencil, Save, Filter
 } from 'lucide-react';
+import { computeBMI, getBMIStatus } from '../utils/bmi';
 
 interface ChildDetail {
     name: string;
@@ -30,16 +34,10 @@ interface User {
 type ChildrenDataMap = Record<number, ChildDetail[]>;
 
 const computeImt = (bb: string, tb: string): { imt: string; imtStatus: string } => {
-    const weight = parseFloat(bb);
-    const heightM = parseFloat(tb) / 100;
-    if (!weight || !heightM) return { imt: '-', imtStatus: 'Normal' };
-    const imt = weight / (heightM * heightM);
-    const imtStr = imt.toFixed(1);
-    let imtStatus = 'Normal';
-    if (imt < 14) imtStatus = 'Kurus';
-    else if (imt > 20) imtStatus = 'Obesitas';
-    else if (imt > 18) imtStatus = 'Beresiko Gizi Lebih';
-    return { imt: imtStr, imtStatus };
+    const bmi = computeBMI(bb, tb);
+    if (bmi === null) return { imt: '-', imtStatus: 'Normal' };
+    const status = getBMIStatus(bmi);
+    return { imt: bmi.toString(), imtStatus: status };
 };
 
 const INITIAL_CHILDREN_DATA: ChildrenDataMap = {
@@ -77,8 +75,6 @@ export default function AdminPanel() {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
     const [expandedUserId, setExpandedUserId] = useState<number | null>(null);
-
-    // ── NEW: filter by active time ≥ 10 hours ──
     const [filterByActiveTime, setFilterByActiveTime] = useState(false);
 
     // Modal state
@@ -89,6 +85,17 @@ export default function AdminPanel() {
     const [formName, setFormName] = useState('');
     const [formStatus, setFormStatus] = useState<'Active' | 'Inactive'>('Active');
     const [formChildren, setFormChildren] = useState<ChildDetail[]>([emptyChild()]);
+
+    // Toast state
+    const [isToastOpen, setIsToastOpen] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastType, setToastType] = useState<'success' | 'warning' | 'info' | 'error'>('info');
+
+    const showToast = (msg: string, type: 'success' | 'warning' | 'info' | 'error' = 'info') => {
+        setToastMessage(msg);
+        setToastType(type);
+        setIsToastOpen(true);
+    };
 
     const openAddModal = () => {
         setFormName('');
@@ -150,6 +157,7 @@ export default function AdminPanel() {
             };
             setUsers(prev => [...prev, newUser]);
             setChildrenData(prev => ({ ...prev, [newId]: formChildren }));
+            showToast(`Pengguna "${formName.trim()}" dan ${formChildren.length} profil anak berhasil ditambahkan!`, 'success');
         } else if (modalMode === 'edit' && editTarget) {
             setUsers(prev => prev.map(u =>
                 u.id === editTarget.id
@@ -157,37 +165,44 @@ export default function AdminPanel() {
                     : u
             ));
             setChildrenData(prev => ({ ...prev, [editTarget.id]: formChildren }));
+            showToast(`Data "${formName.trim()}" berhasil diperbarui!`, 'success');
         }
         closeModal();
     };
 
     const togglePriority = (userId: number) => {
-        setUsers(users.map(u => u.id === userId ? { ...u, isPriority: !u.isPriority } : u));
+        setUsers(users.map(u => {
+            if (u.id === userId) {
+                const nextPriority = !u.isPriority;
+                showToast(`Prioritas ${u.name} ${nextPriority ? 'diaktifkan' : 'dinonaktifkan'}.`, 'info');
+                return { ...u, isPriority: nextPriority };
+            }
+            return u;
+        }));
     };
 
-    // ── NEW: prioritize all currently filtered users ──
     const prioritizeAllFiltered = () => {
         const ids = new Set(filteredUsers.map(u => u.id));
         setUsers(prev => prev.map(u => ids.has(u.id) ? { ...u, isPriority: true } : u));
+        showToast('Semua pengguna dalam filter berhasil dijadikan prioritas!', 'success');
     };
 
-    // ── UPDATED: filteredUsers now respects the active-time filter ──
     const filteredUsers = users
         .filter(u => u.name.toLowerCase().includes(searchQuery.toLowerCase()))
         .filter(u => !filterByActiveTime || parseFloat(u.lastActive) >= 10);
 
     const allFilteredArePriority = filteredUsers.length > 0 && filteredUsers.every(u => u.isPriority);
-
     const activeUsersCount = users.filter(u => u.status === 'Active').length;
     const priorityUsersCount = users.filter(u => u.isPriority).length;
 
     const selectedUser = selectedUserId ? users.find(u => u.id === selectedUserId) : null;
     const selectedChildren = selectedUserId ? (childrenData[selectedUserId] || []) : [];
 
-    const getImtColor = (status: string) => {
-        if (status === 'Normal') return { bg: 'bg-green-50', text: 'text-green-700', badge: 'bg-green-100 text-green-700' };
-        if (status === 'Kurus') return { bg: 'bg-orange-50', text: 'text-orange-700', badge: 'bg-orange-100 text-orange-700' };
-        return { bg: 'bg-red-50', text: 'text-red-700', badge: 'bg-red-100 text-red-700' };
+    const getImtBadgeVariant = (status: string): 'success' | 'info' | 'warning' | 'danger' => {
+        if (status === 'Normal') return 'success';
+        if (status === 'Kurus') return 'info';
+        if (status === 'Beresiko Gizi Lebih') return 'warning';
+        return 'danger';
     };
 
     const renderFormModal = () => {
@@ -196,51 +211,51 @@ export default function AdminPanel() {
 
         return (
             <div
-                className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[200] flex items-center justify-center p-4"
+                className="fixed inset-0 bg-black/40 backdrop-blur-xs z-[200] flex items-center justify-center p-4"
                 onClick={closeModal}
             >
                 <div
-                    className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden relative max-h-[92vh] flex flex-col"
+                    className="bg-card rounded-2xl w-full max-w-2xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] border-3 border-black overflow-hidden relative max-h-[92vh] flex flex-col select-none"
                     onClick={e => e.stopPropagation()}
                 >
                     {/* Modal Header */}
-                    <div className="bg-[#f472b6]/10 p-6 flex justify-between items-center border-b border-[#f472b6]/20 shrink-0">
+                    <div className="bg-primary p-5 flex justify-between items-center border-b-3 border-black text-black shrink-0">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-[#f472b6]/20 flex items-center justify-center text-[#f472b6]">
-                                {isEdit ? <Pencil className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                            <div className="w-10 h-10 rounded-xl bg-white border-2 border-black flex items-center justify-center text-black shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
+                                {isEdit ? <Pencil className="w-5 h-5" strokeWidth={2.5} /> : <Plus className="w-5 h-5" strokeWidth={3} />}
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-gray-800">
+                                <h3 className="text-lg font-black uppercase tracking-tight text-black">
                                     {isEdit ? `Edit Akun — ${editTarget?.name}` : 'Tambah Akun Pengguna Baru'}
                                 </h3>
-                                <p className="text-xs text-gray-500">Perubahan akan langsung tersimpan ke data pengguna</p>
+                                <p className="text-xs font-bold text-black/70 uppercase tracking-wide">Perubahan akan langsung tersimpan ke data pengguna</p>
                             </div>
                         </div>
-                        <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 transition-colors">
-                            <X className="w-6 h-6" />
+                        <button onClick={closeModal} className="w-8 h-8 rounded-lg bg-white border-2 border-black flex items-center justify-center text-black shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] hover:bg-yellow-50 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer">
+                            <X className="w-5 h-5 stroke-black" strokeWidth={3} />
                         </button>
                     </div>
 
                     {/* Scrollable body */}
-                    <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                    <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-sidebar">
                         {/* Nama & Status */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-1">
-                                <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Nama Orang Tua</label>
+                                <label className="text-xs font-black text-black dark:text-white uppercase tracking-wide pl-1">Nama Orang Tua</label>
                                 <input
                                     type="text"
                                     value={formName}
                                     onChange={e => setFormName(e.target.value)}
                                     placeholder="Contoh: Ibu Budi Santoso"
-                                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#f472b6]/20 focus:border-[#f472b6] transition-all"
+                                    className="w-full bg-card border-2 border-black rounded-xl px-4 py-2.5 text-sm font-bold text-foreground shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] outline-none"
                                 />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Status Akun</label>
+                                <label className="text-xs font-black text-black dark:text-white uppercase tracking-wide pl-1">Status Akun</label>
                                 <select
                                     value={formStatus}
                                     onChange={e => setFormStatus(e.target.value as 'Active' | 'Inactive')}
-                                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#f472b6]/20 focus:border-[#f472b6] transition-all bg-white"
+                                    className="w-full bg-card border-2 border-black rounded-xl px-4 py-2.5 text-sm font-bold text-foreground shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] outline-none cursor-pointer"
                                 >
                                     <option value="Active">Aktif</option>
                                     <option value="Inactive">Non-aktif</option>
@@ -250,20 +265,20 @@ export default function AdminPanel() {
 
                         {/* Jumlah Anak Stepper */}
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Jumlah Anak</label>
-                            <div className="flex items-center gap-4 bg-gray-50 rounded-xl px-4 py-3 border border-gray-200">
+                            <label className="text-xs font-black text-black dark:text-white uppercase tracking-wide pl-1">Jumlah Anak</label>
+                            <div className="flex items-center gap-4 bg-card rounded-xl px-4 py-3 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                                 <button
                                     type="button"
                                     onClick={() => handleChildCount(formChildren.length - 1)}
                                     disabled={formChildren.length <= 1}
-                                    className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-600 font-bold text-xl disabled:opacity-30 hover:bg-gray-100 transition-all active:scale-95"
+                                    className="w-9 h-9 rounded-lg bg-muted border-2 border-black flex items-center justify-center text-foreground font-black text-xl shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] disabled:opacity-30 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none cursor-pointer"
                                 >−</button>
-                                <span className="flex-1 text-center font-bold text-2xl text-gray-800">{formChildren.length}</span>
+                                <span className="flex-1 text-center font-black text-2xl text-black dark:text-white">{formChildren.length}</span>
                                 <button
                                     type="button"
                                     onClick={() => handleChildCount(formChildren.length + 1)}
                                     disabled={formChildren.length >= 5}
-                                    className="w-9 h-9 rounded-lg bg-[#f472b6] flex items-center justify-center text-white font-bold text-xl disabled:opacity-30 hover:bg-[#f472b6]/90 transition-all active:scale-95"
+                                    className="w-9 h-9 rounded-lg bg-success border-2 border-black flex items-center justify-center text-black font-black text-xl shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] disabled:opacity-30 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none cursor-pointer"
                                 >+</button>
                             </div>
                         </div>
@@ -271,79 +286,79 @@ export default function AdminPanel() {
                         {/* Child Forms */}
                         <div className="space-y-4">
                             {formChildren.map((child, idx) => (
-                                <div key={idx} className="bg-gray-50 rounded-2xl border border-gray-200 p-4">
-                                    <div className="flex items-center gap-2 mb-4">
-                                        <div className="w-7 h-7 rounded-full bg-[#f472b6]/15 flex items-center justify-center text-[#f472b6] font-bold text-xs">
+                                <div key={idx} className="bg-card rounded-2xl border-3 border-black p-5 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                                    <div className="flex items-center gap-2 mb-4 pb-2 border-b-2 border-black/10">
+                                        <div className="w-7 h-7 rounded-lg bg-success border-2 border-black flex items-center justify-center text-black font-black text-xs shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
                                             {idx + 1}
                                         </div>
-                                        <h4 className="font-bold text-gray-800 text-sm">Data Anak {idx + 1}</h4>
+                                        <h4 className="font-black text-black dark:text-white uppercase text-sm">Data Anak {idx + 1}</h4>
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <div className="sm:col-span-2 space-y-1">
-                                            <label className="text-[10px] font-semibold text-gray-500 uppercase">Nama Anak</label>
+                                            <label className="text-[10px] font-black text-muted-foreground uppercase pl-1">Nama Anak</label>
                                             <input
                                                 type="text"
                                                 value={child.name}
                                                 onChange={e => updateFormChild(idx, 'name', e.target.value)}
                                                 placeholder="Nama lengkap anak"
-                                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-[#f472b6]/30 transition-all"
+                                                className="w-full border-2 border-black rounded-lg px-3 py-2 text-sm font-bold bg-sidebar outline-none"
                                             />
                                         </div>
                                         <div className="space-y-1">
-                                            <label className="text-[10px] font-semibold text-gray-500 uppercase">Usia</label>
+                                            <label className="text-[10px] font-black text-muted-foreground uppercase pl-1">Usia</label>
                                             <input
                                                 type="text"
                                                 value={child.age}
                                                 onChange={e => updateFormChild(idx, 'age', e.target.value)}
                                                 placeholder="Contoh: 24 Bulan"
-                                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-[#f472b6]/30 transition-all"
+                                                className="w-full border-2 border-black rounded-lg px-3 py-2 text-sm font-bold bg-sidebar outline-none"
                                             />
                                         </div>
                                         <div className="space-y-1">
-                                            <label className="text-[10px] font-semibold text-gray-500 uppercase">Jenis Kelamin</label>
+                                            <label className="text-[10px] font-black text-muted-foreground uppercase pl-1">Jenis Kelamin</label>
                                             <select
                                                 value={child.gender}
                                                 onChange={e => updateFormChild(idx, 'gender', e.target.value)}
-                                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-[#f472b6]/30 transition-all"
+                                                className="w-full border-2 border-black rounded-lg px-3 py-2 text-sm font-bold bg-sidebar outline-none cursor-pointer"
                                             >
                                                 <option>Laki-laki</option>
                                                 <option>Perempuan</option>
                                             </select>
                                         </div>
                                         <div className="space-y-1">
-                                            <label className="text-[10px] font-semibold text-gray-500 uppercase">Berat Badan (kg)</label>
+                                            <label className="text-[10px] font-black text-muted-foreground uppercase pl-1">Berat Badan (kg)</label>
                                             <input
                                                 type="number"
                                                 step="0.1"
                                                 value={child.bb}
                                                 onChange={e => updateFormChild(idx, 'bb', e.target.value)}
                                                 placeholder="Contoh: 12.5"
-                                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-[#f472b6]/30 transition-all"
+                                                className="w-full border-2 border-black rounded-lg px-3 py-2 text-sm font-bold bg-sidebar outline-none"
                                             />
                                         </div>
                                         <div className="space-y-1">
-                                            <label className="text-[10px] font-semibold text-gray-500 uppercase">Tinggi Badan (cm)</label>
+                                            <label className="text-[10px] font-black text-muted-foreground uppercase pl-1">Tinggi Badan (cm)</label>
                                             <input
                                                 type="number"
                                                 step="1"
                                                 value={child.tb}
                                                 onChange={e => updateFormChild(idx, 'tb', e.target.value)}
                                                 placeholder="Contoh: 85"
-                                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-[#f472b6]/30 transition-all"
+                                                className="w-full border-2 border-black rounded-lg px-3 py-2 text-sm font-bold bg-sidebar outline-none"
                                             />
                                         </div>
                                         {child.bb && child.tb && (
                                             <div className="sm:col-span-2">
-                                                <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold ${getImtColor(child.imtStatus).badge}`}>
-                                                    <TrendingUp className="w-4 h-4" />
+                                                <div className="flex items-center gap-2 p-2.5 rounded-lg border-2 border-black bg-card-subtle text-xs font-black uppercase shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
+                                                    <TrendingUp className="w-4 h-4 stroke-[3]" />
                                                     IMT Otomatis: {child.imt} — {child.imtStatus}
                                                 </div>
                                             </div>
                                         )}
-                                        <div className="sm:col-span-2 space-y-1">
+                                        <div className="sm:col-span-2 space-y-1 pt-1">
                                             <div className="flex justify-between">
-                                                <label className="text-[10px] font-semibold text-gray-500 uppercase">Progress Intervensi</label>
-                                                <span className="text-[10px] font-bold text-[#f472b6]">{child.progress}%</span>
+                                                <label className="text-[10px] font-black text-muted-foreground uppercase">Progress Intervensi</label>
+                                                <span className="text-xs font-black text-primary">{child.progress}%</span>
                                             </div>
                                             <input
                                                 type="range"
@@ -352,7 +367,7 @@ export default function AdminPanel() {
                                                 step="1"
                                                 value={child.progress}
                                                 onChange={e => updateFormChild(idx, 'progress', e.target.value)}
-                                                className="w-full accent-[#f472b6]"
+                                                className="w-full accent-black cursor-pointer"
                                             />
                                         </div>
                                     </div>
@@ -362,11 +377,11 @@ export default function AdminPanel() {
                     </div>
 
                     {/* Footer */}
-                    <div className="p-6 border-t border-gray-100 flex justify-end gap-3 shrink-0 bg-white">
+                    <div className="p-5 border-t-3 border-black flex justify-end gap-3 shrink-0 bg-card">
                         <button
                             type="button"
                             onClick={closeModal}
-                            className="px-5 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-all"
+                            className="px-5 py-2.5 rounded-xl border-2 border-black bg-card text-xs font-black uppercase text-foreground hover:bg-card-subtle active:translate-x-[1px] active:translate-y-[1px] active:shadow-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer"
                         >
                             Batal
                         </button>
@@ -374,9 +389,9 @@ export default function AdminPanel() {
                             type="button"
                             onClick={handleSave}
                             disabled={!formName.trim()}
-                            className="bg-[#f472b6] hover:bg-[#f472b6]/90 disabled:opacity-40 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-md transition-all"
+                            className="bg-success text-black border-2 border-black px-6 py-2.5 rounded-xl text-xs font-black uppercase flex items-center gap-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none disabled:opacity-40 cursor-pointer transition-all"
                         >
-                            <Save className="w-4 h-4" />
+                            <Save className="w-4 h-4 stroke-[2.5]" />
                             {isEdit ? 'Simpan Perubahan' : 'Tambah Pengguna'}
                         </button>
                     </div>
@@ -386,144 +401,125 @@ export default function AdminPanel() {
     };
 
     return (
-        <div className="min-h-screen bg-background flex w-full font-sans">
+        <div className="min-h-screen bg-background flex w-full font-sans select-none">
+            <Head title="Admin Panel - EmoGROW" />
             <Sidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
 
             <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative">
                 <Header onMenuClick={() => setIsMobileMenuOpen(true)} />
                 <main className="flex-1 overflow-y-auto p-4 md:p-8">
-                    <div className="max-w-[1200px] mx-auto">
+                    <div className="max-w-[1200px] mx-auto space-y-8">
 
                         {/* Page Header */}
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-                            <div>
-                                <p className="text-[#f472b6] text-[11px] font-bold tracking-wider uppercase mb-1">Halaman Administrator</p>
-                                <h1 className="text-netral text-3xl md:text-[36px] leading-tight font-bold">Manajemen Pengguna</h1>
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 flex-wrap">
+                            <div className="min-w-0 flex-1">
+                                <p className="text-primary text-[10px] font-black tracking-wider uppercase mb-1">Halaman Administrator</p>
+                                <h1 className="text-black dark:text-white text-3xl md:text-4xl font-black uppercase tracking-tight">Manajemen Pengguna</h1>
                             </div>
                             <button
                                 onClick={openAddModal}
-                                className="flex items-center gap-2 bg-[#f472b6] hover:bg-[#f472b6]/90 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-md transition-all self-start md:self-auto"
+                                className="shrink-0 flex items-center gap-2 bg-primary text-black border-2 border-black px-5 py-2.5 rounded-xl text-xs font-black uppercase shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all self-start md:self-auto cursor-pointer"
                             >
-                                <Plus className="w-4 h-4" /> Tambah Pengguna
+                                <Plus className="w-4 h-4" strokeWidth={3} /> Tambah Pengguna
                             </button>
                         </div>
 
                         {/* Stats */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-                                <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500">
-                                    <Shield className="w-6 h-6" />
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="bg-card p-6 rounded-2xl border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-4">
+                                <div className="w-12 h-12 bg-info text-white border-2 border-black rounded-xl flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                    <Shield className="w-6 h-6" strokeWidth={2.5} />
                                 </div>
                                 <div>
-                                    <p className="text-sm text-gray-500 font-medium">Total Pengguna</p>
-                                    <h3 className="text-2xl font-bold text-gray-800">{users.length}</h3>
+                                    <p className="text-xs font-black uppercase tracking-wider text-muted-foreground">Total Pengguna</p>
+                                    <h3 className="text-2xl font-black text-black dark:text-white tracking-tight">{users.length}</h3>
                                 </div>
                             </div>
-                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-                                <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-500">
-                                    <CheckCircle className="w-6 h-6" />
+                            <div className="bg-card p-6 rounded-2xl border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-4">
+                                <div className="w-12 h-12 bg-success text-black border-2 border-black rounded-xl flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                    <CheckCircle className="w-6 h-6" strokeWidth={2.5} />
                                 </div>
                                 <div>
-                                    <p className="text-sm text-gray-500 font-medium">Pengguna Aktif</p>
-                                    <h3 className="text-2xl font-bold text-gray-800">{activeUsersCount}</h3>
+                                    <p className="text-xs font-black uppercase tracking-wider text-muted-foreground">Pengguna Aktif</p>
+                                    <h3 className="text-2xl font-black text-black dark:text-white tracking-tight">{activeUsersCount}</h3>
                                 </div>
                             </div>
-                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-                                <div className="w-12 h-12 bg-pink-50 rounded-full flex items-center justify-center text-[#f472b6]">
-                                    <Star className="w-6 h-6" />
+                            <div className="bg-card p-6 rounded-2xl border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-4">
+                                <div className="w-12 h-12 bg-primary text-black border-2 border-black rounded-xl flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                    <Star className="w-6 h-6 fill-black" strokeWidth={2.5} />
                                 </div>
                                 <div>
-                                    <p className="text-sm text-gray-500 font-medium">Prioritas Tinggi</p>
-                                    <h3 className="text-2xl font-bold text-gray-800">{priorityUsersCount}</h3>
+                                    <p className="text-xs font-black uppercase tracking-wider text-muted-foreground">Prioritas Tinggi</p>
+                                    <h3 className="text-2xl font-black text-black dark:text-white tracking-tight">{priorityUsersCount}</h3>
                                 </div>
                             </div>
                         </div>
 
                         {/* Table Card */}
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="bg-card rounded-2xl border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
 
-                            {/* ── UPDATED TOOLBAR ── */}
-                            <div className="p-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                <h3 className="text-lg font-bold text-gray-800">Daftar Orang Tua / Ibu</h3>
+                            {/* Toolbar */}
+                            <div className="p-6 border-b-3 border-black flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card">
+                                <h3 className="text-lg font-black uppercase tracking-tight text-black dark:text-white">Daftar Orang Tua / Ibu</h3>
                                 <div className="flex flex-wrap items-center gap-3">
                                     {/* Search */}
                                     <div className="relative">
-                                        <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                        <Search className="w-4 h-4 text-foreground absolute left-3.5 top-1/2 -translate-y-1/2" strokeWidth={2.5} />
                                         <input
                                             type="text"
                                             placeholder="Cari nama..."
                                             value={searchQuery}
                                             onChange={e => setSearchQuery(e.target.value)}
-                                            className="pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f472b6]/20 focus:border-[#f472b6] text-sm w-full sm:w-52 transition-all"
+                                            className="pl-10 pr-4 py-2 bg-background border-2 border-black rounded-xl text-sm font-bold text-foreground shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] outline-none w-full sm:w-52"
                                         />
                                     </div>
 
                                     {/* Filter ≥10 jam */}
                                     <button
                                         onClick={() => setFilterByActiveTime(prev => !prev)}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition-all whitespace-nowrap ${filterByActiveTime
-                                                ? 'bg-pink-50 border-[#f472b6] text-[#f472b6]'
-                                                : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-black text-xs font-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all whitespace-nowrap cursor-pointer ${filterByActiveTime
+                                                ? 'bg-primary text-black translate-x-[-1px] translate-y-[-1px]'
+                                                : 'bg-card text-foreground hover:bg-card-subtle'
                                             }`}
                                     >
-                                        <Filter className="w-4 h-4" />
+                                        <Filter className="w-3.5 h-3.5" strokeWidth={3} />
                                         ≥ 10 jam aktif
                                         {filterByActiveTime && (
-                                            <span className="ml-1 bg-[#f472b6] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                                            <span className="ml-1 bg-black text-white text-[9px] font-black px-1.5 py-0.5 rounded-md">
                                                 {filteredUsers.length}
                                             </span>
                                         )}
                                     </button>
 
-                                    {/* Prioritaskan Semua — only shown when filter is active */}
+                                    {/* Prioritaskan Semua */}
                                     {filterByActiveTime && (
                                         <button
                                             onClick={prioritizeAllFiltered}
                                             disabled={filteredUsers.length === 0 || allFilteredArePriority}
-                                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#f472b6] text-white text-sm font-bold shadow-md hover:bg-[#f472b6]/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all whitespace-nowrap"
+                                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-success text-black border-2 border-black text-xs font-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] disabled:opacity-40 disabled:cursor-not-allowed transition-all whitespace-nowrap cursor-pointer"
                                             title={allFilteredArePriority ? 'Semua sudah diprioritaskan' : 'Tandai semua hasil filter sebagai prioritas'}
                                         >
-                                            <Star className="w-4 h-4" />
+                                            <Star className="w-3.5 h-3.5 fill-black" />
                                             Prioritaskan Semua
                                         </button>
                                     )}
                                 </div>
                             </div>
 
-                            {/* Filter info bar */}
-                            {filterByActiveTime && (
-                                <div className="px-6 py-2.5 bg-pink-50 border-b border-pink-100 flex items-center justify-between gap-4">
-                                    <p className="text-xs text-[#be185d] font-medium flex items-center gap-2">
-                                        <Clock className="w-3.5 h-3.5 shrink-0" />
-                                        {filteredUsers.length > 0
-                                            ? `Menampilkan ${filteredUsers.length} pengguna dengan waktu aktif ≥ 10 jam.${allFilteredArePriority ? ' Semua sudah diprioritaskan.' : ' Klik "Prioritaskan Semua" untuk menandai sekaligus.'}`
-                                            : 'Tidak ada pengguna dengan waktu aktif ≥ 10 jam yang cocok.'
-                                        }
-                                    </p>
-                                    <button
-                                        onClick={() => setFilterByActiveTime(false)}
-                                        className="text-[#be185d] hover:text-[#9d174d] transition-colors shrink-0"
-                                        title="Hapus filter"
-                                    >
-                                        <X className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            )}
-
                             {/* Table */}
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left border-collapse">
                                     <thead>
-                                        <tr className="bg-gray-50/50">
-                                            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Nama Orang Tua</th>
-                                            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Jumlah Anak</th>
-                                            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                                            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Waktu Aktif (Jam)</th>
-                                            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Prioritas</th>
-                                            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Aksi</th>
+                                        <tr className="bg-card-subtle border-b-3 border-black text-black dark:text-white">
+                                            <th className="px-6 py-4 text-xs font-black uppercase tracking-wider">Nama Orang Tua</th>
+                                            <th className="px-6 py-4 text-xs font-black uppercase tracking-wider">Jumlah Anak</th>
+                                            <th className="px-6 py-4 text-xs font-black uppercase tracking-wider">Status</th>
+                                            <th className="px-6 py-4 text-xs font-black uppercase tracking-wider">Waktu Aktif</th>
+                                            <th className="px-6 py-4 text-xs font-black uppercase tracking-wider text-center">Prioritas</th>
+                                            <th className="px-6 py-4 text-xs font-black uppercase tracking-wider text-center">Aksi</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-gray-100">
+                                    <tbody className="divide-y-2 divide-black/10">
                                         {filteredUsers.map(user => {
                                             const isExpanded = expandedUserId === user.id;
                                             const childrenForUser = childrenData[user.id] || [];
@@ -532,41 +528,39 @@ export default function AdminPanel() {
                                             return (
                                                 <React.Fragment key={user.id}>
                                                     <tr
-                                                        className={`hover:bg-[#f472b6]/5 transition-colors cursor-pointer ${isExpanded ? 'bg-[#f472b6]/5' : ''} ${filterByActiveTime && isHighActive ? 'bg-pink-50/40' : ''}`}
+                                                        className={`hover:bg-card-subtle transition-colors cursor-pointer ${isExpanded ? 'bg-card-subtle' : ''}`}
                                                         onClick={() => setExpandedUserId(isExpanded ? null : user.id)}
                                                     >
                                                         <td className="px-6 py-4">
                                                             <div className="flex items-center gap-3">
-                                                                <div className="w-10 h-10 rounded-full bg-[#f472b6]/10 flex items-center justify-center text-[#f472b6] font-bold uppercase shrink-0">
-                                                                    {user.name.charAt(4)}
+                                                                <div className="w-10 h-10 rounded-xl bg-primary border-2 border-black flex items-center justify-center text-black font-black uppercase shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] shrink-0">
+                                                                    {user.name.charAt(4) || 'U'}
                                                                 </div>
                                                                 <div className="flex items-center gap-2">
-                                                                    <span className="font-semibold text-gray-800 text-sm">{user.name}</span>
-                                                                    <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                                                                    <span className="font-black text-black dark:text-white text-sm uppercase">{user.name}</span>
+                                                                    <ChevronDown className={`w-4 h-4 text-black transition-transform ${isExpanded ? 'rotate-180' : ''}`} strokeWidth={2.5} />
                                                                 </div>
                                                             </div>
                                                         </td>
                                                         <td className="px-6 py-4">
-                                                            <div className="flex items-center gap-1.5 text-sm text-gray-600 font-medium">
-                                                                <Baby className="w-4 h-4 text-[#f472b6]" />
+                                                            <div className="flex items-center gap-1.5 text-xs font-black text-black dark:text-white uppercase">
+                                                                <Baby className="w-4 h-4 text-black dark:text-white" strokeWidth={2.5} />
                                                                 {childrenForUser.length} Anak
                                                             </div>
                                                         </td>
                                                         <td className="px-6 py-4">
-                                                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide uppercase ${user.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
-                                                                }`}>
+                                                            <Badge variant={user.status === 'Active' ? 'success' : 'netral'}>
                                                                 {user.status === 'Active' ? 'Aktif' : 'Non-aktif'}
-                                                            </span>
+                                                            </Badge>
                                                         </td>
                                                         <td className="px-6 py-4">
                                                             <div className="flex items-center gap-1.5">
-                                                                <Clock className={`w-4 h-4 ${isHighActive ? 'text-[#f472b6]' : 'text-gray-400'}`} />
-                                                                <span className={`text-xs font-medium ${isHighActive ? 'text-[#be185d] font-semibold' : 'text-gray-500'}`}>
+                                                                <Clock className="w-4 h-4 text-black dark:text-white" strokeWidth={2.5} />
+                                                                <span className="text-xs font-black text-black dark:text-white">
                                                                     {user.lastActive} Jam
                                                                 </span>
-                                                                {/* Badge ≥10j */}
                                                                 {isHighActive && (
-                                                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-pink-100 text-[#be185d]">
+                                                                    <span className="bg-primary text-black border border-black px-1.5 py-0.5 rounded text-[9px] font-black uppercase">
                                                                         ≥10j
                                                                     </span>
                                                                 )}
@@ -575,55 +569,61 @@ export default function AdminPanel() {
                                                         <td className="px-6 py-4 text-center">
                                                             <button
                                                                 onClick={e => { e.stopPropagation(); togglePriority(user.id); }}
-                                                                className={`p-2 rounded-full transition-all ${user.isPriority ? 'bg-pink-50 text-[#f472b6] hover:bg-pink-100' : 'text-gray-300 hover:bg-gray-50 hover:text-gray-400'}`}
+                                                                className={`p-1.5 rounded-lg border-2 border-black transition-all cursor-pointer ${
+                                                                    user.isPriority 
+                                                                        ? 'bg-warning text-black shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]' 
+                                                                        : 'bg-card text-muted-foreground hover:text-foreground shadow-none'
+                                                                }`}
                                                                 title={user.isPriority ? 'Hapus dari Prioritas' : 'Jadikan Prioritas'}
                                                             >
-                                                                <Star className={`w-5 h-5 ${user.isPriority ? 'fill-current' : ''}`} />
+                                                                <Star className={`w-4 h-4 ${user.isPriority ? 'fill-black' : ''}`} strokeWidth={2.5} />
                                                             </button>
                                                         </td>
                                                         <td className="px-6 py-4 text-center">
                                                             <button
                                                                 onClick={e => { e.stopPropagation(); openEditModal(user); }}
-                                                                className="p-2 rounded-full text-gray-400 hover:bg-[#f472b6]/10 hover:text-[#f472b6] transition-all"
+                                                                className="p-1.5 rounded-lg border-2 border-black bg-card text-foreground hover:bg-card-subtle shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer"
                                                                 title="Edit pengguna"
                                                             >
-                                                                <Pencil className="w-4 h-4" />
+                                                                <Pencil className="w-4 h-4" strokeWidth={2.5} />
                                                             </button>
                                                         </td>
                                                     </tr>
 
                                                     {isExpanded && (
                                                         <tr>
-                                                            <td colSpan={6} className="px-6 py-4 bg-gray-50/70">
+                                                            <td colSpan={6} className="px-6 py-5 bg-card-subtle border-t-2 border-black/20">
                                                                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                                                                     <div className="flex flex-wrap gap-3">
-                                                                        {childrenForUser.map((child, idx) => {
-                                                                            const color = getImtColor(child.imtStatus);
-                                                                            return (
-                                                                                <div key={idx} className="flex items-center gap-2 bg-white rounded-xl px-3 py-2 border border-gray-200 shadow-sm">
-                                                                                    <div className="w-7 h-7 rounded-full bg-[#f472b6]/15 flex items-center justify-center text-[#f472b6] font-bold text-xs">
-                                                                                        {idx + 1}
-                                                                                    </div>
-                                                                                    <div>
-                                                                                        <p className="text-xs font-semibold text-gray-800">{child.name}</p>
-                                                                                        <p className="text-[10px] text-gray-500">{child.age} · <span className={color.text}>{child.imtStatus}</span></p>
+                                                                        {childrenForUser.map((child, idx) => (
+                                                                            <div key={idx} className="flex items-center gap-2.5 bg-card rounded-xl p-3 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                                                                <div className="w-7 h-7 rounded-lg bg-primary border-2 border-black flex items-center justify-center text-black font-black text-xs">
+                                                                                    {idx + 1}
+                                                                                </div>
+                                                                                <div>
+                                                                                    <p className="text-xs font-black uppercase text-black dark:text-white">{child.name}</p>
+                                                                                    <div className="flex items-center gap-2 mt-0.5">
+                                                                                        <span className="text-[10px] font-extrabold text-muted-foreground uppercase">{child.age}</span>
+                                                                                        <Badge variant={getImtBadgeVariant(child.imtStatus)}>
+                                                                                            {child.imtStatus}
+                                                                                        </Badge>
                                                                                     </div>
                                                                                 </div>
-                                                                            );
-                                                                        })}
+                                                                            </div>
+                                                                        ))}
                                                                     </div>
                                                                     <div className="flex gap-2 shrink-0">
                                                                         <button
                                                                             onClick={e => { e.stopPropagation(); openEditModal(user); }}
-                                                                            className="border border-[#f472b6] text-[#f472b6] hover:bg-[#f472b6]/5 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all"
+                                                                            className="border-2 border-black bg-card text-foreground hover:bg-card-subtle px-4 py-2 rounded-xl text-xs font-black uppercase flex items-center gap-1.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer"
                                                                         >
-                                                                            <Pencil className="w-4 h-4" /> Edit
+                                                                            <Pencil className="w-3.5 h-3.5" strokeWidth={2.5} /> Edit
                                                                         </button>
                                                                         <button
                                                                             onClick={e => { e.stopPropagation(); setSelectedUserId(user.id); }}
-                                                                            className="bg-[#f472b6] hover:bg-[#f472b6]/90 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 shadow-md transition-all"
+                                                                            className="bg-success text-black border-2 border-black px-4 py-2 rounded-xl text-xs font-black uppercase flex items-center gap-1.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer"
                                                                         >
-                                                                            <Eye className="w-4 h-4" /> Lihat Detail
+                                                                            <Eye className="w-3.5 h-3.5" strokeWidth={2.5} /> Lihat Detail
                                                                         </button>
                                                                     </div>
                                                                 </div>
@@ -637,10 +637,7 @@ export default function AdminPanel() {
                                         {filteredUsers.length === 0 && (
                                             <tr>
                                                 <td colSpan={6} className="px-6 py-12 text-center">
-                                                    <div className="text-gray-400 mb-2">
-                                                        <Search className="w-8 h-8 mx-auto opacity-50" />
-                                                    </div>
-                                                    <p className="text-gray-500 font-medium">
+                                                    <p className="text-xs font-black uppercase text-muted-foreground">
                                                         {filterByActiveTime
                                                             ? 'Tidak ada pengguna dengan waktu aktif ≥ 10 jam.'
                                                             : `Tidak ada pengguna yang cocok dengan "${searchQuery}"`
@@ -659,23 +656,23 @@ export default function AdminPanel() {
 
                 {/* Detail Modal */}
                 {selectedUser && (
-                    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={() => setSelectedUserId(null)}>
-                        <div className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden relative max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
-                            <div className="bg-[#f472b6]/10 p-6 flex justify-between items-center border-b border-[#f472b6]/20 shrink-0">
+                    <div className="fixed inset-0 bg-black/40 backdrop-blur-xs z-[100] flex items-center justify-center p-4" onClick={() => setSelectedUserId(null)}>
+                        <div className="bg-card rounded-2xl w-full max-w-2xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] border-3 border-black overflow-hidden relative max-h-[90vh] flex flex-col select-none" onClick={e => e.stopPropagation()}>
+                            <div className="bg-primary p-6 flex justify-between items-center border-b-3 border-black text-black shrink-0">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-14 h-14 rounded-full bg-[#f472b6]/20 flex items-center justify-center text-[#f472b6] font-bold text-xl uppercase">
-                                        {selectedUser.name.charAt(4)}
+                                    <div className="w-14 h-14 rounded-2xl bg-white border-2 border-black flex items-center justify-center text-black font-black text-xl uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                        {selectedUser.name.charAt(4) || 'U'}
                                     </div>
                                     <div>
-                                        <h3 className="text-xl font-bold text-gray-800">{selectedUser.name}</h3>
-                                        <div className="flex items-center gap-3 mt-1">
-                                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase ${selectedUser.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                                        <h3 className="text-xl font-black uppercase tracking-tight text-black">{selectedUser.name}</h3>
+                                        <div className="flex items-center gap-2 mt-1.5">
+                                            <Badge variant={selectedUser.status === 'Active' ? 'success' : 'netral'}>
                                                 {selectedUser.status === 'Active' ? 'Aktif' : 'Non-aktif'}
-                                            </span>
+                                            </Badge>
                                             {selectedUser.isPriority && (
-                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase bg-pink-100 text-[#f472b6]">
-                                                    <Star className="w-3 h-3 fill-current" /> Prioritas
-                                                </span>
+                                                <Badge variant="warning">
+                                                    <Star className="w-3 h-3 fill-black mr-1" /> Prioritas
+                                                </Badge>
                                             )}
                                         </div>
                                     </div>
@@ -683,100 +680,89 @@ export default function AdminPanel() {
                                 <div className="flex items-center gap-2">
                                     <button
                                         onClick={() => { setSelectedUserId(null); openEditModal(selectedUser); }}
-                                        className="flex items-center gap-1.5 border border-[#f472b6] text-[#f472b6] hover:bg-[#f472b6]/5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
+                                        className="flex items-center gap-1.5 bg-white border-2 border-black text-black hover:bg-yellow-50 px-3 py-1.5 rounded-xl text-xs font-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer"
                                     >
-                                        <Pencil className="w-3.5 h-3.5" /> Edit
+                                        <Pencil className="w-3.5 h-3.5" strokeWidth={2.5} /> Edit
                                     </button>
-                                    <button onClick={() => setSelectedUserId(null)} className="text-gray-400 hover:text-gray-600 transition-colors">
-                                        <X className="w-6 h-6" />
+                                    <button onClick={() => setSelectedUserId(null)} className="w-8 h-8 rounded-lg bg-white border-2 border-black flex items-center justify-center text-black shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] hover:bg-yellow-50 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer">
+                                        <X className="w-5 h-5 stroke-black" strokeWidth={3} />
                                     </button>
                                 </div>
                             </div>
 
-                            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-sidebar">
                                 <div className="grid grid-cols-3 gap-4">
-                                    <div className="bg-gray-50 rounded-xl p-4 text-center">
-                                        <Baby className="w-5 h-5 text-[#f472b6] mx-auto mb-1" />
-                                        <p className="text-xs text-gray-500 font-medium">Jumlah Anak</p>
-                                        <p className="text-lg font-bold text-gray-800">{selectedChildren.length}</p>
+                                    <div className="bg-card rounded-xl border-2 border-black p-4 text-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                        <Baby className="w-5 h-5 text-foreground mx-auto mb-1" strokeWidth={2.5} />
+                                        <p className="text-[10px] font-black uppercase text-muted-foreground">Jumlah Anak</p>
+                                        <p className="text-xl font-black text-black dark:text-white mt-0.5">{selectedChildren.length}</p>
                                     </div>
-                                    <div className="bg-gray-50 rounded-xl p-4 text-center">
-                                        <Clock className="w-5 h-5 text-blue-500 mx-auto mb-1" />
-                                        <p className="text-xs text-gray-500 font-medium">Waktu Aktif</p>
-                                        <p className="text-lg font-bold text-gray-800">{selectedUser.lastActive} Jam</p>
+                                    <div className="bg-card rounded-xl border-2 border-black p-4 text-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                        <Clock className="w-5 h-5 text-foreground mx-auto mb-1" strokeWidth={2.5} />
+                                        <p className="text-[10px] font-black uppercase text-muted-foreground">Waktu Aktif</p>
+                                        <p className="text-xl font-black text-black dark:text-white mt-0.5">{selectedUser.lastActive} Jam</p>
                                     </div>
-                                    <div className="bg-gray-50 rounded-xl p-4 text-center">
-                                        <Activity className="w-5 h-5 text-green-500 mx-auto mb-1" />
-                                        <p className="text-xs text-gray-500 font-medium">Rata-rata Progress</p>
-                                        <p className="text-lg font-bold text-gray-800">
-                                            {selectedChildren.length > 0
-                                                ? Math.round(selectedChildren.reduce((sum, c) => sum + c.progress, 0) / selectedChildren.length)
-                                                : 0}%
+                                    <div className="bg-card rounded-xl border-2 border-black p-4 text-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                        <Activity className="w-5 h-5 text-foreground mx-auto mb-1" strokeWidth={2.5} />
+                                        <p className="text-[10px] font-black uppercase text-muted-foreground">Progress</p>
+                                        <p className="text-xl font-black text-primary mt-0.5">
+                                            {selectedChildren.length > 0 ? Math.round(selectedChildren.reduce((a, b) => a + b.progress, 0) / selectedChildren.length) : 0}%
                                         </p>
                                     </div>
                                 </div>
 
-                                <div>
-                                    <h4 className="text-base font-bold text-gray-800 mb-4">Data Anak yang Terdaftar</h4>
-                                    <div className="space-y-4">
-                                        {selectedChildren.map((child, idx) => {
-                                            const imtColor = getImtColor(child.imtStatus);
-                                            return (
-                                                <div key={idx} className={`border rounded-2xl overflow-hidden ${imtColor.bg} border-gray-200`}>
-                                                    <div className="px-5 py-4 bg-white/70 flex items-center justify-between">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 rounded-full bg-[#f472b6]/15 flex items-center justify-center text-[#f472b6] font-bold text-sm">{idx + 1}</div>
-                                                            <div>
-                                                                <p className="font-bold text-gray-800 text-sm">{child.name}</p>
-                                                                <p className="text-xs text-gray-500">{child.gender} · {child.age}</p>
-                                                            </div>
-                                                        </div>
-                                                        <span className={`px-2.5 py-1 rounded-full text-[11px] font-semibold ${imtColor.badge}`}>IMT: {child.imtStatus}</span>
-                                                    </div>
-                                                    <div className="px-5 py-4 grid grid-cols-3 gap-4">
-                                                        <div className="flex items-center gap-2">
-                                                            <Scale className="w-4 h-4 text-gray-400" />
-                                                            <div>
-                                                                <p className="text-[10px] text-gray-500 uppercase font-semibold">Berat Badan</p>
-                                                                <p className="text-sm font-bold text-gray-800">{child.bb} kg</p>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <Ruler className="w-4 h-4 text-gray-400" />
-                                                            <div>
-                                                                <p className="text-[10px] text-gray-500 uppercase font-semibold">Tinggi Badan</p>
-                                                                <p className="text-sm font-bold text-gray-800">{child.tb} cm</p>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <TrendingUp className={`w-4 h-4 ${imtColor.text}`} />
-                                                            <div>
-                                                                <p className="text-[10px] text-gray-500 uppercase font-semibold">Skor IMT</p>
-                                                                <p className={`text-sm font-bold ${imtColor.text}`}>{child.imt}</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="px-5 pb-4">
-                                                        <div className="flex justify-between items-center mb-1.5">
-                                                            <span className="text-[10px] text-gray-500 font-semibold uppercase">Progress Intervensi</span>
-                                                            <span className="text-[11px] font-bold text-[#f472b6]">{child.progress}%</span>
-                                                        </div>
-                                                        <div className="h-2 w-full bg-white/80 rounded-full overflow-hidden">
-                                                            <div className="h-full bg-[#f472b6] rounded-full transition-all duration-700" style={{ width: `${child.progress}%` }} />
-                                                        </div>
-                                                    </div>
+                                <div className="space-y-4">
+                                    <h4 className="text-sm font-black uppercase tracking-tight text-black dark:text-white">Detail Pertumbuhan Anak</h4>
+                                    {selectedChildren.map((child, idx) => (
+                                        <div key={idx} className="bg-card rounded-2xl border-3 border-black p-5 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] space-y-4">
+                                            <div className="flex justify-between items-center pb-3 border-b-2 border-black/10">
+                                                <div>
+                                                    <h5 className="font-black uppercase text-black dark:text-white text-base">{child.name}</h5>
+                                                    <p className="text-xs font-bold text-muted-foreground uppercase">{child.age} · {child.gender}</p>
                                                 </div>
-                                            );
-                                        })}
-                                    </div>
+                                                <Badge variant={getImtBadgeVariant(child.imtStatus)}>
+                                                    {child.imtStatus}
+                                                </Badge>
+                                            </div>
+
+                                            <div className="grid grid-cols-3 gap-3">
+                                                <div className="bg-sidebar rounded-xl border-2 border-black p-3 text-center">
+                                                    <p className="text-[10px] font-black uppercase text-muted-foreground">Berat</p>
+                                                    <p className="text-base font-black text-black dark:text-white">{child.bb} kg</p>
+                                                </div>
+                                                <div className="bg-sidebar rounded-xl border-2 border-black p-3 text-center">
+                                                    <p className="text-[10px] font-black uppercase text-muted-foreground">Tinggi</p>
+                                                    <p className="text-base font-black text-black dark:text-white">{child.tb} cm</p>
+                                                </div>
+                                                <div className="bg-sidebar rounded-xl border-2 border-black p-3 text-center">
+                                                    <p className="text-[10px] font-black uppercase text-muted-foreground">IMT</p>
+                                                    <p className="text-base font-black text-black dark:text-white">{child.imt}</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-1 pt-1">
+                                                <div className="flex justify-between text-xs font-black uppercase">
+                                                    <span>Progress Intervensi</span>
+                                                    <span className="text-primary">{child.progress}%</span>
+                                                </div>
+                                                <div className="w-full bg-muted border-2 border-black h-3.5 rounded-full overflow-hidden p-0.5">
+                                                    <div className="bg-success h-full rounded-full transition-all duration-500" style={{ width: `${child.progress}%` }}></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         </div>
                     </div>
                 )}
 
-                {/* Add/Edit Form Modal */}
-                {renderFormModal()}
+                <Toast 
+                    message={toastMessage}
+                    type={toastType}
+                    isOpen={isToastOpen}
+                    onClose={() => setIsToastOpen(false)}
+                />
             </div>
         </div>
     );

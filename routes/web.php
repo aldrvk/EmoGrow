@@ -4,15 +4,6 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Foundation\Application;
 
-// Tambahan Route Registrasi
-Route::get('/register', function () {
-    return Inertia::render('Auth/Register');
-})->name('register');
-
-Route::get('/login', function () {
-    return Inertia::render('Auth/Login');
-})->name('login');
-
 Route::get('/', function () {
     return Inertia::render('Dashboard');
 })->name('dashboard');
@@ -64,5 +55,6 @@ Route::get('/admin', function () {
     return Inertia::render('AdminPanel');
 })->name('admin');
 
-Route::get('/login', fn() => inertia('Auth/AuthPage'))->name('login');
-   Route::get('/register', fn() => inertia('Auth/AuthPage'))->name('register');
+Route::get('/login', fn() => Inertia::render('Auth/AuthPage'))->name('login');
+Route::get('/register', fn() => Inertia::render('Auth/AuthPage'))->name('register');
+Route::get('/auth', fn() => Inertia::render('Auth/AuthPage'))->name('auth');

@@ -4,7 +4,8 @@ import Sidebar from '../Components/Layout/Sidebar';
 import Header from '../Components/Layout/Header';
 import Button from '../Components/Buttons/Button';
 import Badge from '../Components/Badges/Badge';
-import { Clock, ArrowRight, Play, Eye, HelpCircle, Info } from 'lucide-react';
+import { Clock, ArrowRight, Play, Eye, HelpCircle, Info, BookOpen } from 'lucide-react';
+import { getBMIStatusStyle } from '../utils/bmi';
 
 export default function Edukasi() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -18,29 +19,17 @@ export default function Edukasi() {
     const savedWeight = typeof window !== 'undefined' ? localStorage.getItem('childWeight') || '' : '';
     const savedHeight = typeof window !== 'undefined' ? localStorage.getItem('childHeight') || '' : '';
 
-    // Menentukan label kelompok usia anak
     const getAgeGroup = () => {
         const months = parseInt(savedAge);
         if (!months) return 'Umum';
-        if (months <= 12) return '0-12 Bulan';
-        if (months <= 24) return '12-24 Bulan';
-        if (months <= 36) return '2-3 Tahun';
-        return '3-5 Tahun';
+        if (months <= 12) return '0–12 Bulan';
+        if (months <= 24) return '12–24 Bulan';
+        if (months <= 36) return '2–3 Tahun';
+        return '3–5 Tahun';
     };
     const ageGroup = getAgeGroup();
 
-    // Penyesuaian skema warna Neubrutalism berdasarkan status IMT anak
-    const getStatusColor = () => {
-        if (savedIMTStatus === 'Normal') {
-            return { bg: 'bg-[#a3e635]', text: 'text-black', label: 'Normal' };
-        }
-        if (savedIMTStatus === 'Kurus') {
-            return { bg: 'bg-[#00a6ff]', text: 'text-black', label: 'Kurus' };
-        }
-        // Obesitas / Gizi Lebih
-        return { bg: 'bg-[#f472b6]', text: 'text-black', label: savedIMTStatus };
-    };
-    const statusColor = getStatusColor();
+    const statusStyle = getBMIStatusStyle(savedIMTStatus);
 
     // Logika Pemetaan Konten Dinamis
     const getDynamicContent = () => {
@@ -51,16 +40,16 @@ export default function Edukasi() {
                 featuredId: ageMonths <= 24 ? 'mpasi_padat_gizi' : 'nutrisi_tambahan_kalori',
                 featuredTitle: ageMonths <= 24 ? "Panduan MPASI Padat Gizi untuk Bayi Underweight" : "Pentingnya Nutrisi Tambahan & Kalori Padat",
                 featuredDesc: ageMonths <= 24 
-                    ? `Pelajari resep MPASI tinggi kalori & protein untuk mengejar pertumbuhan bayi usia ${ageGroup} dengan BB ${savedWeight} kg.`
-                    : `Pelajari panduan meningkatkan BB anak usia ${ageGroup} (TB: ${savedHeight} cm, BB: ${savedWeight} kg) agar mencapai kurva pertumbuhan ideal.`,
+                    ? `Pelajari resep MPASI tinggi kalori & protein untuk mengejar pertumbuhan bayi usia ${ageGroup} dengan BB ${savedWeight || '8.5'} kg.`
+                    : `Pelajari panduan meningkatkan BB anak usia ${ageGroup} (TB: ${savedHeight || '80'} cm, BB: ${savedWeight || '8.5'} kg) agar mencapai kurva pertumbuhan ideal.`,
                 videoId: "stimulasi_nafsu_makan",
                 videoTitle: "Latihan Stimulasi Nafsu Makan",
                 videoDesc: `Panduan praktis menstimulasi nafsu makan anak usia ${ageGroup} yang sulit makan dengan cara menyenangkan.`,
                 infografisId: "gizi_underweight",
                 infografisTitle: "Panduan Gizi Anak Underweight",
                 infografisDesc: "Visualisasi mudah untuk menyusun porsi makan ekstra kalori padat gizi guna mengejar BB ideal.",
-                kuisId: "kuis_gizi_kurang",
-                kuisTitle: "Cek Pemahaman: Kalori Makro & Mikro anak Kurus",
+                kuisId: "kuis_motorik",
+                kuisTitle: "Kuis: Kalori Makro & Mikro Anak",
                 kuisDesc: "Uji pengetahuan Anda mengenai jenis lemak sehat dan protein terbaik untuk mengejar ketertinggalan BB anak."
             };
         } else if (savedIMTStatus === 'Obesitas' || savedIMTStatus === 'Beresiko Gizi Lebih') {
@@ -68,33 +57,31 @@ export default function Edukasi() {
                 featuredId: ageMonths <= 24 ? 'porsi_mpasi_overweight' : 'manajemen_bb_dini',
                 featuredTitle: ageMonths <= 24 ? "Mengatur Porsi Makan Bayi Agar Tidak Overweight" : "Manajemen Berat Badan Anak Sejak Dini",
                 featuredDesc: ageMonths <= 24
-                    ? `Pelajari porsi MPASI yang tepat agar bayi usia ${ageGroup} dengan BB ${savedWeight} kg tidak kelebihan berat badan.`
-                    : `Pelajari cara mengatur asupan kalori dan aktivitas fisik anak usia ${ageGroup} (BB: ${savedWeight} kg, TB: ${savedHeight} cm) untuk menurunkan IMT secara sehat.`,
-                videoId: "aktivitas_fisik_fun",
-                videoTitle: "Aktivitas Fisik Fun untuk Anak",
-                videoDesc: `Latihan gerak menyenangkan yang dirancang khusus untuk anak usia ${ageGroup} agar membakar kalori berlebih tanpa beban.`,
+                    ? `Pelajari porsi MPASI yang tepat agar bayi usia ${ageGroup} dengan BB ${savedWeight || '13.5'} kg tidak kelebihan berat badan.`
+                    : `Pelajari cara mengatur asupan kalori dan aktivitas fisik anak usia ${ageGroup} (BB: ${savedWeight || '13.5'} kg, TB: ${savedHeight || '84'} cm) untuk menurunkan IMT secara sehat.`,
+                videoId: "motorik",
+                videoTitle: "Latihan Aktivitas Fisik Menyenangkan",
+                videoDesc: `Latihan gerak terstruktur yang dirancang khusus untuk anak usia ${ageGroup} agar membakar kalori berlebih dengan ceria.`,
                 infografisId: "gizi_overweight",
-                infografisTitle: "Panduan Diet Sehat Anak Overweight",
-                infografisDesc: "Visualisasi panduan porsi makan dan substitusi camilan sehat untuk menurunkan IMT secara perlahan.",
-                kuisId: "kuis_gizi_lebih",
-                kuisTitle: "Cek Pemahaman: Manajemen Porsi & Gula",
+                infografisTitle: "Panduan Gizi Seimbang Anak Overweight",
+                infografisDesc: "Visualisasi panduan porsi makan dan substitusi camilan sehat untuk menjaga kurva tumbuh kembang seimbang.",
+                kuisId: "kuis_motorik",
+                kuisTitle: "Kuis: Manajemen Porsi & Gula",
                 kuisDesc: "Uji pemahaman Anda tentang cara membatasi konsumsi gula tersembunyi pada jajanan harian balita."
             };
         } else {
             return {
-                featuredId: ageMonths <= 24 ? 'gizi_golden_age' : 'nutrisi_optimal',
-                featuredTitle: ageMonths <= 24 ? "Panduan Gizi Seimbang untuk Bayi di Golden Age" : "Nutrisi Seimbang untuk Tumbuh Kembang Optimal",
-                featuredDesc: ageMonths <= 24
-                    ? `Menu MPASI kaya nutrisi untuk bayi usia ${ageGroup} (BB: ${savedWeight} kg) guna mendukung masa golden age.`
-                    : `Pelajari panduan lengkap menu harian untuk anak usia ${ageGroup} (BB: ${savedWeight} kg, TB: ${savedHeight} cm) yang mendukung perkembangan kognitif & fisik.`,
-                videoId: "motorik_kasar_rumah",
+                featuredId: 'nutrisi_dasar',
+                featuredTitle: "Nutrisi Seimbang untuk Tumbuh Kembang Optimal",
+                featuredDesc: `Pelajari panduan lengkap menu harian untuk anak usia ${ageGroup} guna mendukung perkembangan kognitif dan motorik prima.`,
+                videoId: "motorik",
                 videoTitle: "Latihan Motorik Kasar di Rumah",
-                videoDesc: `Panduan praktis melatih keseimbangan dan koordinasi anak usia ${ageGroup} dengan peralatan sederhana.`,
-                infografisId: "gizi_normal",
+                videoDesc: `Panduan praktis melatih keseimbangan dan koordinasi anak usia ${ageGroup} dengan peralatan sederhana di rumah.`,
+                infografisId: "gizi_overweight",
                 infografisTitle: "Panduan Mempertahankan Status Gizi Normal",
                 infografisDesc: "Visualisasi porsi 'Isi Piringku' untuk menjaga status gizi dan kesehatan optimal setiap hari.",
-                kuisId: "kuis_pola_tidur",
-                kuisTitle: "Cek Pemahaman: Pola Tidur & Tumbuh Kembang",
+                kuisId: "kuis_motorik",
+                kuisTitle: "Kuis: Pola Tidur & Tumbuh Kembang",
                 kuisDesc: "Uji pengetahuan Anda tentang hubungan jam tidur ideal malam hari terhadap stabilitas metabolisme tubuh anak."
             };
         }
@@ -103,52 +90,60 @@ export default function Edukasi() {
     const content = getDynamicContent();
 
     return (
-        <div className="min-h-screen bg-[#fbfbf4] flex w-full font-sans antialiased text-black">
-            <Head title="Pusat Edukasi" />
+        <div className="min-h-screen bg-background flex w-full font-sans antialiased text-black dark:text-slate-100 select-none">
+            <Head title="Edukasi Tumbuh Kembang - EmoGROW" />
             <Sidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
             
             <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
                 <Header onMenuClick={() => setIsMobileMenuOpen(true)} />
                 <main className="flex-1 overflow-y-auto p-4 md:p-8">
-                    <div className="max-w-[1200px] mx-auto">
+                    <div className="max-w-[1200px] mx-auto space-y-8">
                         
                         {/* Page Header */}
-                        <div className="mb-8">
-                            <h1 className="text-black text-3xl md:text-[40px] leading-tight font-black uppercase tracking-tight mb-6">
+                        <div>
+                            <Badge variant="primary" className="mb-2">
+                                Modul & Panduan Orang Tua
+                            </Badge>
+                            <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-black dark:text-white mb-2">
                                 Pusat Edukasi EmoGROW
                             </h1>
+                            <p className="text-xs md:text-sm font-bold text-muted-foreground uppercase tracking-wide max-w-2xl">
+                                Akses materi terstruktur berbasis riset kesehatan anak untuk mendampingi masa emas tumbuh kembang buah hati Anda.
+                            </p>
                             
-                            {/* IMT Status Banner (Neubrutalism Card) */}
-                            <div className="bg-white border-2 border-black rounded-2xl p-5 mb-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                                <div className={`w-12 h-12 rounded-xl border-2 border-black ${statusColor.bg} flex items-center justify-center shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]`}>
-                                    <Info className="w-6 h-6 text-black" />
+                            {/* IMT Status Banner */}
+                            <div className="bg-card border-3 border-black rounded-2xl p-5 mt-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 flex-wrap">
+                                <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                                    <div className="w-10 h-10 rounded-xl bg-primary text-black border-2 border-black flex items-center justify-center shrink-0 shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
+                                        <Info className="w-5 h-5 stroke-[2.5]" />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-xs md:text-sm font-black uppercase text-black dark:text-white">
+                                            Rekomendasi materi disesuaikan dengan kondisi anak:
+                                        </p>
+                                        <p className="text-xs font-bold text-muted-foreground uppercase mt-0.5">
+                                            {savedAge ? `Usia: ${savedAge} bulan` : 'Usia: 24 bulan'}
+                                            {savedWeight ? ` · BB: ${savedWeight} kg` : ' · BB: 12.0 kg'}
+                                            {savedHeight ? ` · TB: ${savedHeight} cm` : ' · TB: 85 cm'}
+                                            {savedIMTScore !== '-' ? ` · Skor IMT: ${savedIMTScore}` : ' · Skor IMT: 17.8'}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className="flex-1">
-                                    <p className="text-base font-black tracking-tight">
-                                        Edukasi ini menyesuaikan kondisi IMT anak Anda:
-                                    </p>
-                                    <p className="text-sm font-bold text-black/70 mt-1">
-                                        {savedAge ? `Usia: ${savedAge} bulan` : ''}
-                                        {savedWeight ? ` · BB: ${savedWeight} kg` : ''}
-                                        {savedHeight ? ` · TB: ${savedHeight} cm` : ''}
-                                        {savedIMTScore !== '-' ? ` · Skor IMT: ${savedIMTScore}` : ''}
-                                    </p>
-                                </div>
-                                <div className={`flex items-center border-2 border-black px-4 py-2 rounded-xl font-black text-sm uppercase tracking-wider ${statusColor.bg} shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]`}>
-                                    {statusColor.label}
-                                </div>
+                                <Badge variant={statusStyle.variant} className="shrink-0">
+                                    Status Gizi: {savedIMTStatus}
+                                </Badge>
                             </div>
 
-                            {/* Filter Pills (Neubrutalism Style Buttons) */}
-                            <div className="flex flex-wrap gap-3">
+                            {/* Filter Pills */}
+                            <div className="flex flex-wrap gap-2.5 pt-5">
                                 {categories.map(category => (
                                     <button
                                         key={category}
                                         onClick={() => setActiveCategory(category)}
-                                        className={`px-6 py-2.5 rounded-xl text-sm font-black uppercase tracking-wider transition-all border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${
+                                        className={`px-4 py-2 rounded-xl text-xs font-black uppercase border-2 border-black transition-all cursor-pointer ${
                                             activeCategory === category 
-                                                ? 'bg-[#00a6ff] text-black' 
-                                                : 'bg-white text-black hover:bg-[#fbfbf4]'
+                                                ? 'bg-success text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]' 
+                                                : 'bg-card text-foreground hover:bg-muted shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
                                         }`}
                                     >
                                         {category}
@@ -157,137 +152,195 @@ export default function Edukasi() {
                             </div>
                         </div>
 
-                        {/* Featured Content Card (Neubrutalism Heavy Card) */}
-                        <div className="bg-white rounded-2xl border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] overflow-hidden mb-12 flex flex-col md:flex-row">
-                            {/* Left: Cover Modul Cover Block */}
-                            <div className="md:w-5/12 bg-[#fffdf4] border-b-2 md:border-b-0 md:border-r-2 border-black relative min-h-[250px] md:min-h-full flex items-center justify-center p-6">
-                                <div className="w-[190px] h-[250px] bg-[#f472b6] border-2 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center text-black relative z-10 p-6 text-center">
-                                    <div className="w-12 h-12 border-2 border-black bg-white rounded-xl mb-4 flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                                        <div className="w-6 h-6 border-2 border-black rounded-full bg-[#00a6ff]" />
-                                    </div>
-                                    <p className="text-[11px] uppercase tracking-[0.2em] font-black mb-1">MODUL</p>
-                                    <h3 className="text-xl font-black tracking-tight leading-tight">EMOGROW</h3>
-                                    <p className="text-[8px] font-bold uppercase mt-4 leading-relaxed bg-white border border-black px-2 py-0.5 rounded-md">
-                                        PANDUAN ORANG TUA
-                                    </p>
+                        {/* Featured Content Card */}
+                        <div className="bg-card rounded-2xl border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col md:flex-row">
+                            {/* Left: Cover Illustration Block */}
+                            <div className="md:w-5/12 bg-card-subtle border-b-3 md:border-b-0 md:border-r-3 border-black relative min-h-[260px] flex items-center justify-center p-8 overflow-hidden">
+                                {/* Reading Time Pill: Positioned on top-left with z-20 so it is NEVER covered */}
+                                <div className="absolute top-4 left-4 z-20 bg-card border-2 border-black px-3 py-1 rounded-lg flex items-center gap-1.5 shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] text-xs font-black uppercase text-foreground">
+                                    <Clock className="w-3.5 h-3.5 stroke-[2.5]" />
+                                    <span>5 Menit Baca</span>
                                 </div>
 
-                                <div className="absolute top-6 left-6 bg-[#a3e635] border-2 border-black px-3 py-1 rounded-lg flex items-center gap-1.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] font-black text-xs">
-                                    <Clock className="w-4 h-4" />
-                                    <span>5 MENIT BACA</span>
+                                {/* Central Book Mockup Card */}
+                                <div className="w-[170px] h-[210px] bg-card border-2 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center text-center p-4 relative z-10 mt-4">
+                                    <div className="w-11 h-11 bg-primary text-black border-2 border-black rounded-xl mb-2.5 flex items-center justify-center shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
+                                        <BookOpen className="w-5 h-5 stroke-[2.5]" />
+                                    </div>
+                                    <span className="text-[8px] font-black text-muted-foreground tracking-widest uppercase mb-1">Modul Resmi</span>
+                                    <h3 className="text-sm font-black uppercase text-black dark:text-white leading-tight">EmoGROW</h3>
+                                    <span className="text-[8px] font-black uppercase text-black bg-success border border-black px-2 py-0.5 rounded mt-2.5">
+                                        Panduan Orang Tua
+                                    </span>
                                 </div>
                             </div>
 
                             {/* Right: Content */}
-                            <div className="p-8 md:p-10 flex-1 flex flex-col justify-center items-start bg-white">
-                                <span className="bg-[#00a6ff] border-2 border-black px-3 py-1 rounded-lg font-black text-xs uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] mb-4">
-                                    Modul Pembelajaran
-                                </span>
-                                <h2 className="text-2xl md:text-3xl font-black text-black leading-tight mb-4">
+                            <div className="p-6 md:p-8 flex-1 flex flex-col justify-center items-start bg-card min-w-0">
+                                <Badge variant="primary" className="mb-3">
+                                    Modul Utama Pilihan
+                                </Badge>
+                                <h2 className="text-xl md:text-2xl font-black uppercase tracking-tight text-black dark:text-white leading-tight mb-2">
                                     {content.featuredTitle}
                                 </h2>
-                                <p className="text-base font-bold text-black/80 leading-relaxed mb-8 max-w-[500px]">
+                                <p className="text-xs md:text-sm font-bold text-muted-foreground leading-relaxed mb-6 max-w-lg">
                                     {content.featuredDesc}
                                 </p>
-                                <button 
+                                <Button 
+                                    variant="primary"
+                                    size="md"
                                     onClick={() => router.get(`/edukasi/detail?id=${content.featuredId}`)}
-                                    className="inline-flex items-center justify-center bg-[#a3e635] text-black font-black uppercase tracking-wider border-2 border-black rounded-xl px-6 h-12 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-[#8ecb2c] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all"
                                 >
-                                    Mulai Belajar
-                                    <ArrowRight className="w-5 h-5 ml-2 stroke-[3]" />
-                                </button>
+                                    Mulai Belajar Modul
+                                    <ArrowRight className="w-4 h-4 ml-1 stroke-[3]" />
+                                </Button>
                             </div>
                         </div>
 
                         {/* Materi Terbaru Section */}
-                        <div className="mb-12">
-                            <h2 className="text-2xl font-black uppercase tracking-tight mb-6">Materi Terbaru</h2>
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between pb-2 border-b-3 border-black">
+                                <h2 className="text-lg md:text-xl font-black uppercase tracking-tight text-black dark:text-white">Materi Rekomendasi Terkini</h2>
+                                <span className="text-xs font-black uppercase text-muted-foreground">
+                                    {(() => {
+                                        const count = [
+                                            { type: 'video', category: 'Perkembangan' },
+                                            { type: 'infografis', category: 'Pertumbuhan' },
+                                            { type: 'kuis', category: 'Perkembangan' },
+                                        ].filter(item => {
+                                            if (activeCategory === 'Semua') return true;
+                                            if (activeCategory === 'Video') return item.type === 'video';
+                                            if (activeCategory === 'Infografis') return item.type === 'infografis';
+                                            return item.category === activeCategory;
+                                        }).length;
+                                        return `${count} Materi Tersedia`;
+                                    })()}
+                                </span>
+                            </div>
                             
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 
-                                {/* Card 1: Video (Neubrutalism Card) */}
-                                <div 
-                                    onClick={() => router.get(`/edukasi/detail?id=${content.videoId}`)}
-                                    className="bg-white rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col h-full cursor-pointer hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all group active:translate-x-[2px] active:translate-y-[2px]"
-                                >
-                                    <div className="h-[180px] bg-[#00a6ff]/20 border-b-2 border-black relative flex items-center justify-center">
-                                        <div className="absolute top-4 left-4 z-20">
-                                            <span className="bg-white border-2 border-black px-3 py-1 rounded-lg font-black text-xs uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                                                Video Simulasi
-                                            </span>
-                                        </div>
-                                        <div className="w-14 h-14 bg-[#a3e635] border-2 border-black rounded-full flex items-center justify-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] group-hover:scale-110 transition-transform z-10">
-                                            <Play className="w-6 h-6 text-black ml-1 fill-black" />
-                                        </div>
-                                    </div>
-                                    <div className="p-6 flex flex-col flex-1 bg-white">
-                                        <h3 className="text-lg font-black text-black mb-2 leading-tight">{content.videoTitle}</h3>
-                                        <p className="text-sm font-bold text-black/70 leading-relaxed mb-6 flex-1">
-                                            {content.videoDesc}
-                                        </p>
-                                        <div className="mt-auto border-t-2 border-black pt-4">
-                                            <div className="flex justify-between items-center mb-2">
-                                                <span className="text-xs font-black uppercase tracking-wider">Progress</span>
-                                                <span className="text-xs font-black bg-[#f472b6] border border-black px-1.5 py-0.5 rounded">0%</span>
+                                {/* Card 1: Video */}
+                                {(activeCategory === 'Semua' || activeCategory === 'Perkembangan' || activeCategory === 'Video') && (
+                                    <div 
+                                        onClick={() => router.get(`/edukasi/detail?id=${content.videoId}`)}
+                                        className="bg-card rounded-2xl border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col h-full cursor-pointer hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all group"
+                                    >
+                                        {/* Standardized Card Header */}
+                                        <div className="h-[170px] bg-slate-900/10 dark:bg-slate-950 relative flex items-center justify-center overflow-hidden border-b-2 border-black">
+                                            <img 
+                                                src="https://images.unsplash.com/photo-1596464716127-f2a82984de30?w=600&q=80" 
+                                                alt={content.videoTitle} 
+                                                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                            />
+                                            <div className="absolute inset-0 bg-black/20" />
+                                            <div className="absolute top-3.5 left-3.5 z-10">
+                                                <Badge variant="secondary">Video Simulasi</Badge>
                                             </div>
-                                            <div className="h-4 w-full bg-white border-2 border-black rounded-lg overflow-hidden p-0.5">
-                                                <div className="h-full bg-[#f472b6] rounded-md" style={{ width: '0%' }}></div>
+                                            {/* Centered Play Button */}
+                                            <div className="w-12 h-12 bg-primary text-black border-2 border-black rounded-full flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] group-hover:scale-110 active:scale-95 transition-transform z-10">
+                                                <Play className="w-5 h-5 fill-black stroke-black ml-0.5" />
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
 
-                                {/* Card 2: Infografis (Neubrutalism Card) */}
-                                <div 
-                                    onClick={() => router.get(`/edukasi/detail?id=${content.infografisId}`)}
-                                    className="bg-white rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col h-full cursor-pointer hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all group active:translate-x-[2px] active:translate-y-[2px]"
-                                >
-                                    <div className="h-[180px] bg-[#f472b6]/20 border-b-2 border-black relative flex items-center justify-center">
-                                        <div className="absolute top-4 left-4">
-                                            <span className="bg-white border-2 border-black px-3 py-1 rounded-lg font-black text-xs uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                                                Infografik
-                                            </span>
-                                        </div>
-                                        <div className="w-20 h-12 border-2 border-black rounded-lg bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center">
-                                            <div className="w-12 h-3 bg-[#00a6ff] rounded border border-black" />
-                                        </div>
-                                    </div>
-                                    <div className="p-6 flex flex-col flex-1 bg-white">
-                                        <h3 className="text-lg font-black text-black mb-2 leading-tight">{content.infografisTitle}</h3>
-                                        <p className="text-sm font-bold text-black/70 leading-relaxed mb-6 flex-1">
-                                            {content.infografisDesc}
-                                        </p>
-                                        <div className="mt-auto pt-2">
-                                            <button className="inline-flex items-center gap-2 bg-white border-2 border-black px-4 py-2 rounded-xl font-black text-xs uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#fbfbf4]">
-                                                <Eye className="w-4 h-4 stroke-[2.5]" />
-                                                Lihat Infografis
-                                            </button>
+                                        {/* Standardized Card Body */}
+                                        <div className="p-5 flex flex-col flex-1 bg-card">
+                                            <h3 className="text-sm md:text-base font-black uppercase text-black dark:text-white mb-1.5 leading-snug line-clamp-2">
+                                                {content.videoTitle}
+                                            </h3>
+                                            <p className="text-xs font-bold text-muted-foreground leading-relaxed mb-4 flex-1 line-clamp-3">
+                                                {content.videoDesc}
+                                            </p>
+                                            <div className="mt-auto pt-3 border-t-2 border-black/10 flex items-center justify-between text-xs font-black uppercase text-black dark:text-white">
+                                                <span className="text-muted-foreground">Durasi: ~5 Menit</span>
+                                                <span className="text-primary flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                                                    Tonton <ArrowRight className="w-3.5 h-3.5 stroke-[3]" />
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                )}
 
-                                {/* Card 3: Kuis Evaluasi (Neubrutalism Card) */}
-                                <div 
-                                    onClick={() => router.get(`/edukasi/detail?id=${content.kuisId}`)}
-                                    className="bg-white rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col h-full text-center p-6 cursor-pointer hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-x-[2px] active:translate-y-[2px]"
-                                >
-                                    <div className="w-14 h-14 bg-[#00a6ff] border-2 border-black rounded-xl flex items-center justify-center text-black mx-auto mb-4 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
-                                        <HelpCircle className="w-8 h-8 stroke-[2.5]" />
+                                {/* Card 2: Infografis */}
+                                {(activeCategory === 'Semua' || activeCategory === 'Pertumbuhan' || activeCategory === 'Infografis') && (
+                                    <div 
+                                        onClick={() => router.get(`/edukasi/detail?id=${content.infografisId}`)}
+                                        className="bg-card rounded-2xl border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col h-full cursor-pointer hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all group"
+                                    >
+                                        {/* Standardized Card Header */}
+                                        <div className="h-[170px] bg-slate-900/10 dark:bg-slate-950 relative flex items-center justify-center overflow-hidden border-b-2 border-black">
+                                            <img 
+                                                src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&q=80" 
+                                                alt={content.infografisTitle} 
+                                                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                            />
+                                            <div className="absolute inset-0 bg-black/15" />
+                                            <div className="absolute top-3.5 left-3.5 z-10">
+                                                <Badge variant="warning">Infografik</Badge>
+                                            </div>
+                                            <div className="w-10 h-10 bg-card text-foreground border-2 border-black rounded-xl flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] opacity-0 group-hover:opacity-100 group-hover:scale-105 transition-all z-10">
+                                                <Eye className="w-5 h-5 stroke-[2.5]" />
+                                            </div>
+                                        </div>
+
+                                        {/* Standardized Card Body */}
+                                        <div className="p-5 flex flex-col flex-1 bg-card">
+                                            <h3 className="text-sm md:text-base font-black uppercase text-black dark:text-white mb-1.5 leading-snug line-clamp-2">
+                                                {content.infografisTitle}
+                                            </h3>
+                                            <p className="text-xs font-bold text-muted-foreground leading-relaxed mb-4 flex-1 line-clamp-3">
+                                                {content.infografisDesc}
+                                            </p>
+                                            <div className="mt-auto pt-3 border-t-2 border-black/10 flex items-center justify-between text-xs font-black uppercase text-black dark:text-white">
+                                                <span className="text-muted-foreground">Visual Panduan</span>
+                                                <span className="text-info flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                                                    Lihat <Eye className="w-3.5 h-3.5 stroke-[3]" />
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="mb-4">
-                                        <span className="bg-[#fffdf4] border border-black px-2.5 py-1 rounded-md font-black text-xs uppercase">
-                                            Kuis Evaluasi
-                                        </span>
+                                )}
+
+                                {/* Card 3: Kuis Evaluasi (Standardized with consistent top media header) */}
+                                {(activeCategory === 'Semua' || activeCategory === 'Perkembangan') && (
+                                    <div 
+                                        onClick={() => router.get(`/edukasi/detail?id=${content.kuisId}`)}
+                                        className="bg-card rounded-2xl border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col h-full cursor-pointer hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all group"
+                                    >
+                                        {/* Standardized Card Header matching Video & Infographic */}
+                                        <div className="h-[170px] bg-slate-900/10 dark:bg-slate-950 relative flex items-center justify-center overflow-hidden border-b-2 border-black">
+                                            <img 
+                                                src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=80" 
+                                                alt={content.kuisTitle} 
+                                                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-60"
+                                            />
+                                            <div className="absolute inset-0 bg-info/20 dark:bg-info/30" />
+                                            <div className="absolute top-3.5 left-3.5 z-10">
+                                                <Badge variant="info">Kuis Evaluasi</Badge>
+                                            </div>
+                                            {/* Centered Quiz Icon Badge */}
+                                            <div className="w-12 h-12 bg-info text-white border-2 border-black rounded-2xl flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] group-hover:scale-110 active:scale-95 transition-transform z-10">
+                                                <HelpCircle className="w-6 h-6 stroke-[2.5]" />
+                                            </div>
+                                        </div>
+
+                                        {/* Standardized Card Body */}
+                                        <div className="p-5 flex flex-col flex-1 bg-card">
+                                            <h3 className="text-sm md:text-base font-black uppercase text-black dark:text-white mb-1.5 leading-snug line-clamp-2">
+                                                {content.kuisTitle}
+                                            </h3>
+                                            <p className="text-xs font-bold text-muted-foreground leading-relaxed mb-4 flex-1 line-clamp-3">
+                                                {content.kuisDesc}
+                                            </p>
+                                            <div className="mt-auto pt-3 border-t-2 border-black/10 flex items-center justify-between text-xs font-black uppercase text-black dark:text-white">
+                                                <span className="text-muted-foreground">5 Pertanyaan</span>
+                                                <span className="text-info flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                                                    Mulai Kuis <ArrowRight className="w-3.5 h-3.5 stroke-[3]" />
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <h3 className="text-lg font-black text-black mb-2 leading-tight">{content.kuisTitle}</h3>
-                                    <p className="text-sm font-bold text-black/70 leading-relaxed mb-6 flex-1">
-                                        {content.kuisDesc}
-                                    </p>
-                                    <button className="w-full inline-flex items-center justify-center bg-[#a3e635] text-black font-black uppercase tracking-wider border-2 border-black rounded-xl h-11 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#8ecb2c]">
-                                        Mulai Kuis
-                                        <ArrowRight className="w-4 h-4 ml-2 stroke-[3]" />
-                                    </button>
-                                </div>
+                                )}
 
                             </div>
                         </div>

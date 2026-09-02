@@ -48,7 +48,7 @@ const chartDataIMT = [
     { minggu: 'M8', anak: 18.8, normalMin: 14.0, normalMax: 18.0, overweightMax: 20.5 },
     { minggu: 'M12', anak: 18.2, normalMin: 14.0, normalMax: 18.0, overweightMax: 20.5 },
     { minggu: 'M16', anak: 17.9, normalMin: 14.0, normalMax: 18.0, overweightMax: 20.5 },
-    { minggu: 'M20', anak: 17.8, normalMin: 14.0, normalMax: 18.0, overweightMax: 20.5 }, // ✅ dihapus key "font"
+    { minggu: 'M20', anak: 17.8, normalMin: 14.0, normalMax: 18.0, overweightMax: 20.5 },
     { minggu: 'M24', anak: 17.8, normalMin: 14.0, normalMax: 18.0, overweightMax: 20.5 },
 ];
 
@@ -87,70 +87,69 @@ const chartTabs = [
 
 type ChartTab = typeof chartTabs[number]['key'];
 
-// ✅ Pisahkan tiap chart ke komponen/render sendiri agar tidak ada kondisional di dalam AreaChart
 const ChartBB = () => (
     <AreaChart data={chartDataBB} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+        <CartesianGrid strokeDasharray="3 3" stroke="#CBD5E1" />
         <XAxis dataKey="minggu" stroke="#000" fontSize={11} fontWeight={800} tickLine={false} />
         <YAxis stroke="#000" fontSize={11} fontWeight={800} tickLine={false} />
         <Tooltip
             contentStyle={{ backgroundColor: '#000', borderRadius: '12px', border: '2px solid #000', color: '#fff' }}
             itemStyle={{ color: '#fff', fontSize: '12px' }}
-            labelStyle={{ fontWeight: '900', color: '#CCF281', marginBottom: '2px' }}
+            labelStyle={{ fontWeight: '900', color: '#a3e635', marginBottom: '2px' }}
         />
-        <Area type="monotone" dataKey="overweightMax" stroke="#94A3B8" strokeDasharray="4 4" fill="#FCA5A5" fillOpacity={0.2} />
-        <Area type="monotone" dataKey="normalMax" stroke="#64748B" strokeDasharray="4 4" fill="#7DD3FC" fillOpacity={0.15} />
-        <Area type="monotone" dataKey="normalMin" stroke="#64748B" strokeDasharray="4 4" fill="#fff" fillOpacity={1} />
-        <Area type="monotone" dataKey="anak" stroke="#000" fill="#FEF08A" fillOpacity={0.5} strokeWidth={3} dot={{ r: 4, strokeWidth: 2, stroke: '#000', fill: '#FFF' }} />
+        <Area type="monotone" dataKey="overweightMax" stroke="#dc2626" strokeDasharray="4 4" fill="#ff4a4a" fillOpacity={0.2} />
+        <Area type="monotone" dataKey="normalMax" stroke="#65a30d" strokeDasharray="4 4" fill="#a3e635" fillOpacity={0.25} />
+        <Area type="monotone" dataKey="normalMin" stroke="#65a30d" strokeDasharray="4 4" fill="var(--color-card)" fillOpacity={1} />
+        <Area type="monotone" dataKey="anak" stroke="#000" fill="#f472b6" fillOpacity={0.5} strokeWidth={3} dot={{ r: 4, strokeWidth: 2, stroke: '#000', fill: '#FFF' }} />
     </AreaChart>
 );
 
 const ChartTB = () => (
     <AreaChart data={chartDataTB} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+        <CartesianGrid strokeDasharray="3 3" stroke="#CBD5E1" />
         <XAxis dataKey="minggu" stroke="#000" fontSize={11} fontWeight={800} tickLine={false} />
         <YAxis stroke="#000" fontSize={11} fontWeight={800} tickLine={false} />
         <Tooltip
             contentStyle={{ backgroundColor: '#000', borderRadius: '12px', border: '2px solid #000', color: '#fff' }}
             itemStyle={{ color: '#fff', fontSize: '12px' }}
-            labelStyle={{ fontWeight: '900', color: '#CCF281', marginBottom: '2px' }}
+            labelStyle={{ fontWeight: '900', color: '#a3e635', marginBottom: '2px' }}
         />
-        <Area type="monotone" dataKey="normalMax" stroke="#64748B" strokeDasharray="4 4" fill="#7DD3FC" fillOpacity={0.15} />
-        <Area type="monotone" dataKey="normalMin" stroke="#64748B" strokeDasharray="4 4" fill="#fff" fillOpacity={1} />
-        <Area type="monotone" dataKey="anak" stroke="#000" fill="#FEF08A" fillOpacity={0.5} strokeWidth={3} dot={{ r: 4, strokeWidth: 2, stroke: '#000', fill: '#FFF' }} />
+        <Area type="monotone" dataKey="normalMax" stroke="#65a30d" strokeDasharray="4 4" fill="#a3e635" fillOpacity={0.25} />
+        <Area type="monotone" dataKey="normalMin" stroke="#65a30d" strokeDasharray="4 4" fill="var(--color-card)" fillOpacity={1} />
+        <Area type="monotone" dataKey="anak" stroke="#000" fill="#f472b6" fillOpacity={0.5} strokeWidth={3} dot={{ r: 4, strokeWidth: 2, stroke: '#000', fill: '#FFF' }} />
     </AreaChart>
 );
 
 const ChartIMT = () => (
     <AreaChart data={chartDataIMT} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+        <CartesianGrid strokeDasharray="3 3" stroke="#CBD5E1" />
         <XAxis dataKey="minggu" stroke="#000" fontSize={11} fontWeight={800} tickLine={false} />
         <YAxis stroke="#000" fontSize={11} fontWeight={800} tickLine={false} />
         <Tooltip
             contentStyle={{ backgroundColor: '#000', borderRadius: '12px', border: '2px solid #000', color: '#fff' }}
             itemStyle={{ color: '#fff', fontSize: '12px' }}
-            labelStyle={{ fontWeight: '900', color: '#CCF281', marginBottom: '2px' }}
+            labelStyle={{ fontWeight: '900', color: '#a3e635', marginBottom: '2px' }}
         />
-        <Area type="monotone" dataKey="overweightMax" stroke="#94A3B8" strokeDasharray="4 4" fill="#FCA5A5" fillOpacity={0.2} />
-        <Area type="monotone" dataKey="normalMax" stroke="#64748B" strokeDasharray="4 4" fill="#7DD3FC" fillOpacity={0.15} />
-        <Area type="monotone" dataKey="normalMin" stroke="#64748B" strokeDasharray="4 4" fill="#fff" fillOpacity={1} />
-        <Area type="monotone" dataKey="anak" stroke="#000" fill="#FEF08A" fillOpacity={0.5} strokeWidth={3} dot={{ r: 4, strokeWidth: 2, stroke: '#000', fill: '#FFF' }} />
+        <Area type="monotone" dataKey="overweightMax" stroke="#dc2626" strokeDasharray="4 4" fill="#ff4a4a" fillOpacity={0.2} />
+        <Area type="monotone" dataKey="normalMax" stroke="#65a30d" strokeDasharray="4 4" fill="#a3e635" fillOpacity={0.25} />
+        <Area type="monotone" dataKey="normalMin" stroke="#65a30d" strokeDasharray="4 4" fill="var(--color-card)" fillOpacity={1} />
+        <Area type="monotone" dataKey="anak" stroke="#000" fill="#f472b6" fillOpacity={0.5} strokeWidth={3} dot={{ r: 4, strokeWidth: 2, stroke: '#000', fill: '#FFF' }} />
     </AreaChart>
 );
 
 const ChartWHtR = () => (
     <AreaChart data={chartDataWHtR} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+        <CartesianGrid strokeDasharray="3 3" stroke="#CBD5E1" />
         <XAxis dataKey="minggu" stroke="#000" fontSize={11} fontWeight={800} tickLine={false} />
         <YAxis stroke="#000" fontSize={11} fontWeight={800} tickLine={false} domain={[0.4, 0.6]} />
         <Tooltip
             contentStyle={{ backgroundColor: '#000', borderRadius: '12px', border: '2px solid #000', color: '#fff' }}
             itemStyle={{ color: '#fff', fontSize: '12px' }}
-            labelStyle={{ fontWeight: '900', color: '#CCF281', marginBottom: '2px' }}
+            labelStyle={{ fontWeight: '900', color: '#a3e635', marginBottom: '2px' }}
         />
-        <ReferenceArea y1={0.5} y2={0.6} fill="#FCA5A5" fillOpacity={0.25} />
-        <ReferenceArea y1={0.4} y2={0.5} fill="#38BDF8" fillOpacity={0.15} />
-        <Area type="monotone" dataKey="anak" stroke="#000" fill="#CCF281" fillOpacity={0.5} strokeWidth={3} dot={{ r: 4, strokeWidth: 2, stroke: '#000', fill: '#FFF' }} />
+        <ReferenceArea y1={0.5} y2={0.6} fill="#ff4a4a" fillOpacity={0.22} />
+        <ReferenceArea y1={0.4} y2={0.5} fill="#a3e635" fillOpacity={0.25} />
+        <Area type="monotone" dataKey="anak" stroke="#000" fill="#f472b6" fillOpacity={0.5} strokeWidth={3} dot={{ r: 4, strokeWidth: 2, stroke: '#000', fill: '#FFF' }} />
     </AreaChart>
 );
 
@@ -158,17 +157,6 @@ export default function Monitoring() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [activeChart, setActiveChart] = useState<ChartTab>('bb');
 
-    const getChartUnit = () => {
-        switch (activeChart) {
-            case 'bb': return 'kg';
-            case 'tb': return 'cm';
-            case 'imt': return 'kg/m²';
-            case 'whtr': return 'rasio';
-            default: return '';
-        }
-    };
-
-    // ✅ Render chart yang benar berdasarkan tab aktif
     const renderChart = () => {
         switch (activeChart) {
             case 'bb': return <ChartBB />;
@@ -181,8 +169,8 @@ export default function Monitoring() {
     const dayLabels = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
 
     return (
-        <div className="min-h-screen bg-[#FAF9F5] flex w-full font-sans antialiased text-black select-none">
-            <Head title="Monitoring Pertumbuhan" />
+        <div className="min-h-screen bg-background flex w-full font-sans antialiased text-black dark:text-slate-100 select-none">
+            <Head title="Monitoring Perkembangan - EmoGROW" />
             <Sidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
 
             <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
@@ -192,24 +180,24 @@ export default function Monitoring() {
                     <div className="max-w-[1240px] mx-auto space-y-6">
 
                         {/* ---------- PAGE HEADER ---------- */}
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#CCF281] p-6 border-2 border-black rounded-2xl shadow-[4px_4px_0px_0px_#000]">
-                            <div className="space-y-2">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 flex-wrap bg-success p-6 border-3 border-black rounded-2xl shadow-[4px_4px_0px_0px_#000]">
+                            <div className="space-y-2 min-w-0 flex-1">
                                 <h1 className="text-xl md:text-2xl font-black uppercase tracking-tight text-black">
                                     Monitoring & Analitik Pertumbuhan
                                 </h1>
-                                <div className="flex items-center gap-2 bg-white/60 px-3 py-1 rounded-xl border-2 border-black w-fit text-xs md:text-sm font-bold">
+                                <div className="flex items-center gap-2 bg-white text-black px-3 py-1 rounded-xl border-2 border-black w-fit text-xs md:text-sm font-black uppercase shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
                                     <span className="relative flex h-2 w-2">
                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-black opacity-75"></span>
                                         <span className="relative inline-flex rounded-full h-2 w-2 bg-black"></span>
                                     </span>
-                                    {childProfile.name} <span className="text-black/40">|</span> {childProfile.age}
+                                    {childProfile.name} <span className="text-neutral-400">|</span> {childProfile.age}
                                 </div>
                             </div>
-                            <div className="flex items-center gap-3 bg-white p-3 rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_#000] self-start sm:self-center">
-                                <span className="text-xs font-black uppercase tracking-wide flex items-center gap-1.5">
+                            <div className="flex items-center gap-3 bg-white text-black p-3 rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_#000] self-start sm:self-center shrink-0">
+                                <span className="text-xs font-black uppercase tracking-wide flex items-center gap-1.5 text-black">
                                     <Calendar className="w-4 h-4 stroke-[2.5]" /> Timeline:
                                 </span>
-                                <Badge className="bg-[#EAEFF5] text-black border-2 border-black px-3 py-0.5 font-black text-xs rounded-lg">
+                                <Badge variant="info">
                                     Minggu 12 / 24
                                 </Badge>
                             </div>
@@ -218,179 +206,154 @@ export default function Monitoring() {
                         {/* ---------- ROW 1: QUICK METRICS ---------- */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             {/* IMT */}
-                            <div className="bg-[#FEF08A] border-2 border-black p-5 rounded-2xl shadow-[4px_4px_0px_0px_#000] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_0px_#000] transition-all">
-                                <p className="text-xs font-black uppercase tracking-wide mb-1 text-black/60">IMT Saat Ini</p>
+                            <div className="bg-warning border-3 border-black p-5 rounded-2xl shadow-[4px_4px_0px_0px_#000] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_0px_#000] transition-all">
+                                <p className="text-xs font-black uppercase tracking-wide mb-1 text-black/80">IMT Saat Ini</p>
                                 <div className="flex items-baseline gap-1">
-                                    <span className="text-4xl font-black tracking-tight">{metrics.imt.value}</span>
-                                    <span className="text-xs font-bold text-black/70">kg/m²</span>
+                                    <span className="text-4xl font-black tracking-tight text-black">{metrics.imt.value}</span>
+                                    <span className="text-xs font-black text-black/80 uppercase">kg/m²</span>
                                 </div>
-                                <div className="flex items-center gap-1.5 mt-3 bg-white border-2 border-black px-2 py-1 rounded-lg text-[11px] font-black w-fit">
-                                    <TrendingDown className="w-3.5 h-3.5 text-red-500 stroke-[3]" />
-                                    <span>-{(metrics.imt.prev - metrics.imt.value).toFixed(1)} DARI MINGGU LALU</span>
+                                <div className="flex items-center gap-1.5 mt-3 bg-white text-black border-2 border-black px-2.5 py-1 rounded-lg text-[10px] font-black uppercase w-fit shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
+                                    <TrendingDown className="w-3.5 h-3.5 text-danger stroke-[3]" />
+                                    <span>-{(metrics.imt.prev - metrics.imt.value).toFixed(1)} Dari Minggu Lalu</span>
                                 </div>
                             </div>
 
                             {/* WHtR */}
-                            <div className="bg-[#7DD3FC] border-2 border-black p-5 rounded-2xl shadow-[4px_4px_0px_0px_#000] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_0px_#000] transition-all">
-                                <p className="text-xs font-black uppercase tracking-wide mb-1 text-black/60">Rasio WHtR</p>
+                            <div className="bg-info text-white border-3 border-black p-5 rounded-2xl shadow-[4px_4px_0px_0px_#000] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_0px_#000] transition-all">
+                                <p className="text-xs font-black uppercase tracking-wide mb-1 text-white/80">Rasio WHtR</p>
                                 <div className="flex items-baseline gap-1">
-                                    <span className="text-4xl font-black tracking-tight">{metrics.whtr.value}</span>
+                                    <span className="text-4xl font-black tracking-tight text-white">{metrics.whtr.value}</span>
                                 </div>
-                                <div className="flex items-center gap-1.5 mt-3 bg-white border-2 border-black px-2 py-1 rounded-lg text-[11px] font-black w-fit">
-                                    {metrics.whtr.value <= metrics.whtr.threshold ? (
-                                        <>
-                                            <CheckCircle2 className="w-3.5 h-3.5 text-green-600 stroke-[3]" />
-                                            <span>NORMAL (&le; {metrics.whtr.threshold})</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <AlertTriangle className="w-3.5 h-3.5 text-amber-500 stroke-[3]" />
-                                            <span>MELEBIHI BATAS!</span>
-                                        </>
-                                    )}
+                                <div className="flex items-center gap-1.5 mt-3 bg-white text-black border-2 border-black px-2.5 py-1 rounded-lg text-[10px] font-black uppercase w-fit shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-success stroke-[3]" />
+                                    <span>Normal (Cutoff &lt; 0.50)</span>
                                 </div>
                             </div>
 
                             {/* Kepatuhan */}
-                            <div className="bg-[#FCA5A5] border-2 border-black p-5 rounded-2xl shadow-[4px_4px_0px_0px_#000] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_0px_#000] transition-all">
-                                <p className="text-xs font-black uppercase tracking-wide mb-1 text-black/60">Kepatuhan Rutin</p>
+                            <div className="bg-success border-3 border-black p-5 rounded-2xl shadow-[4px_4px_0px_0px_#000] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_0px_#000] transition-all">
+                                <p className="text-xs font-black uppercase tracking-wide mb-1 text-black/80">Kepatuhan Program</p>
                                 <div className="flex items-baseline gap-1">
-                                    <span className="text-4xl font-black tracking-tight">{metrics.kepatuhan.value}</span>
-                                    <span className="text-xs font-bold text-black/70">%</span>
+                                    <span className="text-4xl font-black tracking-tight text-black">{metrics.kepatuhan.value}%</span>
                                 </div>
-                                <div className="mt-3 space-y-1.5">
-                                    <div className="h-3.5 bg-white border-2 border-black rounded-full p-0.5 overflow-hidden">
-                                        <div className="h-full bg-black rounded-full transition-all duration-500" style={{ width: `${metrics.kepatuhan.value}%` }} />
+                                <div className="mt-3 bg-white text-black border-2 border-black rounded-lg p-2 shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
+                                    <div className="flex justify-between text-[10px] font-black uppercase mb-1 text-black">
+                                        <span>71 / 84 Sesi Selesai</span>
                                     </div>
-                                    <p className="text-[10px] font-black uppercase flex justify-between text-black/70">
-                                        <span>Progres Sesi</span>
-                                        <span className="bg-white px-1.5 border border-black rounded text-black">{metrics.kepatuhan.completed}/{metrics.kepatuhan.total}</span>
-                                    </p>
+                                    <div className="h-2 w-full bg-muted border border-black rounded-full overflow-hidden">
+                                        <div className="bg-success h-full" style={{ width: '85%' }}></div>
+                                    </div>
                                 </div>
                             </div>
 
                             {/* Status Gizi */}
-                            <div className="bg-[#D8B4FE] border-2 border-black p-5 rounded-2xl shadow-[4px_4px_0px_0px_#000] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_0px_#000] transition-all flex flex-col justify-between">
-                                <div>
-                                    <p className="text-xs font-black uppercase tracking-wide mb-1 text-black/60">Status Gizi</p>
-                                    <span className="text-3xl font-black uppercase tracking-tight">{metrics.statusGizi.label}</span>
+                            <div className="bg-primary border-3 border-black p-5 rounded-2xl shadow-[4px_4px_0px_0px_#000] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_0px_#000] transition-all">
+                                <p className="text-xs font-black uppercase tracking-wide mb-1 text-black/80">Status Gizi</p>
+                                <div className="flex items-baseline gap-1">
+                                    <span className="text-3xl font-black uppercase tracking-tight text-black">Gizi Baik</span>
                                 </div>
-                                <div className="mt-3 bg-white border-2 border-black flex items-center justify-center gap-1.5 py-1 rounded-xl font-black text-xs shadow-[2px_2px_0px_0px_#000] uppercase">
-                                    <Award className="w-3.5 h-3.5 stroke-[3] text-purple-700" />
-                                    Target Tercapai
+                                <div className="flex items-center gap-1.5 mt-3 bg-white text-black border-2 border-black px-2.5 py-1 rounded-lg text-[10px] font-black uppercase w-fit shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
+                                    <Award className="w-3.5 h-3.5 text-black stroke-[3]" />
+                                    <span>Target Minggu 16 Tercapai</span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* ---------- ROW 2: ANALYTICS GRID ---------- */}
+                        {/* ---------- ROW 2: CHART + CLINICAL SUMMARY ---------- */}
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            {/* Left: Interactive Main Chart */}
-                            <div className="lg:col-span-2 bg-white border-2 border-black rounded-2xl shadow-[4px_4px_0px_0px_#000] overflow-hidden flex flex-col">
-                                {/* Navigation Tabs */}
-                                <div className="flex bg-slate-50 p-1.5 gap-1.5 border-b-2 border-black">
-                                    {chartTabs.map(tab => (
-                                        <button
-                                            key={tab.key}
-                                            onClick={() => setActiveChart(tab.key)}
-                                            className={`flex-1 py-2 text-xs md:text-sm font-black transition-all rounded-xl border-2 ${
-                                                activeChart === tab.key
-                                                    ? 'bg-[#CCF281] text-black border-black shadow-[2px_2px_0px_0px_#000]'
-                                                    : 'bg-transparent text-black/60 border-transparent hover:text-black hover:bg-slate-200/60'
-                                            }`}
-                                        >
-                                            {tab.label}
-                                        </button>
-                                    ))}
+                            {/* Left: Interactive Growth Chart */}
+                            <div className="lg:col-span-2 bg-card border-3 border-black p-6 rounded-2xl shadow-[4px_4px_0px_0px_#000] space-y-4">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-3 border-black pb-4">
+                                    <div>
+                                        <h3 className="text-base font-black uppercase text-black dark:text-white">Kurva Pertumbuhan Klinis</h3>
+                                        <p className="text-[10px] font-bold text-muted-foreground uppercase">Standar Antropometri WHO & KMS</p>
+                                    </div>
+                                    <div className="flex flex-wrap gap-1.5 bg-background p-1 border-2 border-black rounded-xl">
+                                        {chartTabs.map(tab => (
+                                            <button
+                                                key={tab.key}
+                                                onClick={() => setActiveChart(tab.key)}
+                                                className={`px-3 py-1 text-xs font-black uppercase rounded-lg border-2 transition-all cursor-pointer ${
+                                                    activeChart === tab.key
+                                                        ? 'bg-success text-black border-black shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]'
+                                                        : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted'
+                                                }`}
+                                            >
+                                                {tab.label}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
 
-                                {/* Chart Area Wrapper */}
-                                <div className="p-5 flex-1 flex flex-col bg-white">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div>
-                                            <h3 className="text-sm font-black uppercase tracking-tight">Kurva Tren Perkembangan</h3>
-                                            <p className="text-[11px] font-bold text-black/40">STANDARISASI INDIKATOR WHO</p>
-                                        </div>
-                                        <span className="text-[10px] font-black px-2 py-0.5 bg-black text-white rounded-md border border-black uppercase">
-                                            Unit: {getChartUnit()}
-                                        </span>
-                                    </div>
+                                <div className="h-[280px] w-full pt-2">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        {renderChart()}
+                                    </ResponsiveContainer>
+                                </div>
 
-                                    <div className="h-[280px] w-full border-2 border-black rounded-xl p-2 bg-[#FAF9F5] overflow-hidden">
-                                        <ResponsiveContainer width="100%" height="100%">
-                                            {renderChart()}
-                                        </ResponsiveContainer>
+                                {/* Chart Legend */}
+                                <div className="flex flex-wrap items-center gap-4 pt-3 border-t-2 border-black/10 text-xs font-black uppercase">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-4 h-1 bg-primary border border-black"></div>
+                                        <span className="text-black dark:text-white">Pertumbuhan Aktual Anak</span>
                                     </div>
-
-                                    {/* Legend Labels */}
-                                    <div className="flex flex-wrap items-center gap-4 mt-4 pt-3 border-t border-slate-100 text-[11px] font-bold text-black/70 uppercase">
-                                        <div className="flex items-center gap-1.5">
-                                            <span className="w-3.5 h-3.5 bg-[#FEF08A] border border-black rounded"></span>
-                                            <span>Kondisi Riil Anak</span>
-                                        </div>
-                                        <div className="flex items-center gap-1.5">
-                                            <span className="w-3.5 h-3.5 bg-[#7DD3FC] border border-black rounded-sm opacity-40"></span>
-                                            <span>Rentang Standar WHO</span>
-                                        </div>
-                                        {(activeChart === 'bb' || activeChart === 'imt') && (
-                                            <div className="flex items-center gap-1.5">
-                                                <span className="w-3.5 h-3.5 bg-[#FCA5A5] border border-black rounded-sm opacity-40"></span>
-                                                <span>Ambang Overweight</span>
-                                            </div>
-                                        )}
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-3.5 h-3.5 bg-success/30 border border-black rounded-xs"></div>
+                                        <span className="text-black dark:text-white">Rentang Normal WHO</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-3.5 h-3.5 bg-danger/25 border border-black rounded-xs"></div>
+                                        <span className="text-black dark:text-white">Batas Risiko / Overweight</span>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Right: Insights and Radar Chart */}
-                            <div className="space-y-4 flex flex-col justify-between">
-                                {/* Insights Summary */}
-                                <div className="bg-white border-2 border-black p-5 rounded-2xl shadow-[4px_4px_0px_0px_#000] flex-1 flex flex-col">
-                                    <h3 className="text-sm font-black uppercase mb-3 flex items-center gap-2 border-b border-slate-100 pb-2">
-                                        <Activity className="w-4 h-4 stroke-[2.5]" /> Ringkasan Analisis
-                                    </h3>
-                                    <div className="space-y-2.5 flex-1 overflow-y-auto max-h-[195px] pr-1">
-                                        <div className="flex items-start gap-2.5 bg-[#FCA5A5] p-2.5 rounded-xl border border-black">
-                                            <div className="p-1 bg-white border border-black rounded-lg mt-0.5"><TrendingDown className="w-3.5 h-3.5 stroke-[2.5]" /></div>
+                            {/* Right: Clinical Highlights & Radar Chart */}
+                            <div className="space-y-6">
+                                {/* Insights */}
+                                <div className="bg-card border-3 border-black p-5 rounded-2xl shadow-[4px_4px_0px_0px_#000] space-y-3">
+                                    <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground border-b-2 border-black/10 pb-2">Catatan Evaluasi Klinis</h3>
+                                    <div className="space-y-3">
+                                        <div className="flex items-start gap-2.5 bg-card-subtle p-3 rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                            <div className="p-1 bg-success border border-black rounded-lg mt-0.5"><CheckCircle2 className="w-3.5 h-3.5 stroke-[3] text-black" /></div>
                                             <div>
-                                                <h4 className="text-[11px] font-black uppercase">Tren IMT Menurun Halus</h4>
-                                                <p className="text-[10px] font-bold mt-0.5 leading-normal text-black/80">Kepatuhan naik signifikan pada M8-12, memicu penurunan stabil sebesar 0.4 poin.</p>
+                                                <h4 className="text-[11px] font-black uppercase text-black dark:text-white">Rasio WHtR Sangat Aman</h4>
+                                                <p className="text-[10px] font-bold mt-0.5 leading-normal text-muted-foreground">Konsisten berada di bawah batas 0.5 sejak minggu ke-16.</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-start gap-2.5 bg-[#CCF281] p-2.5 rounded-xl border border-black">
-                                            <div className="p-1 bg-white border border-black rounded-lg mt-0.5"><CheckCircle2 className="w-3.5 h-3.5 stroke-[2.5]" /></div>
+                                        <div className="flex items-start gap-2.5 bg-card-subtle p-3 rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                            <div className="p-1 bg-warning border border-black rounded-lg mt-0.5"><AlertTriangle className="w-3.5 h-3.5 stroke-[3] text-black" /></div>
                                             <div>
-                                                <h4 className="text-[11px] font-black uppercase">Rasio WHtR Sangat Aman</h4>
-                                                <p className="text-[10px] font-bold mt-0.5 leading-normal text-black/80">Konsisten berada di bawah garis kritis 0.5 sejak memasuki perhitungan Minggu ke-16.</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-start gap-2.5 bg-[#FEF08A] p-2.5 rounded-xl border border-black">
-                                            <div className="p-1 bg-white border border-black rounded-lg mt-0.5"><AlertTriangle className="w-3.5 h-3.5 stroke-[2.5]" /></div>
-                                            <div>
-                                                <h4 className="text-[11px] font-black uppercase">Pertumbuhan Tinggi Melambat</h4>
-                                                <p className="text-[10px] font-bold mt-0.5 leading-normal text-black/80">Kurva landai terdeteksi. Disarankan melakukan review asupan Kalsium & Vitamin D3.</p>
+                                                <h4 className="text-[11px] font-black uppercase text-black dark:text-white">Pertumbuhan Tinggi Melambat</h4>
+                                                <p className="text-[10px] font-bold mt-0.5 leading-normal text-muted-foreground">Disarankan review asupan kalsium & vitamin D3 harian.</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Radar Chart Mini */}
-                                <div className="bg-white border-2 border-black p-4 rounded-2xl shadow-[4px_4px_0px_0px_#000]">
-                                    <h3 className="text-[11px] font-black uppercase mb-2 text-black/60 tracking-wide">Aspek Tumbuh Kembang</h3>
-                                    <div className="h-[140px] w-full flex items-center justify-center border-2 border-black rounded-xl bg-[#FAF9F5] py-1">
+                                <div className="bg-card border-3 border-black p-4 rounded-2xl shadow-[4px_4px_0px_0px_#000]">
+                                    <h3 className="text-xs font-black uppercase mb-2 text-muted-foreground tracking-wide">Aspek Tumbuh Kembang</h3>
+                                    <div className="h-[140px] w-full flex items-center justify-center border-2 border-black rounded-xl bg-background py-1">
                                         <ResponsiveContainer width="100%" height="100%">
                                             <RadarChart cx="50%" cy="50%" outerRadius="65%" data={radarData}>
                                                 <PolarGrid stroke="#CBD5E1" strokeWidth={1} />
-                                                <PolarAngleAxis dataKey="subject" tick={{ fontSize: 8, fontWeight: 800, fill: '#000' }} />
+                                                <PolarAngleAxis dataKey="subject" tick={{ fontSize: 8, fontWeight: 800, fill: '#64748B' }} />
                                                 <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
-                                                <Radar name="Skor" dataKey="value" stroke="#000" fill="#D8B4FE" fillOpacity={0.5} strokeWidth={2.5} dot={{ r: 3.5, fill: '#FFF', stroke: '#000', strokeWidth: 1.5 }} />
+                                                <Radar name="Skor" dataKey="value" stroke="#000" fill="#f472b6" fillOpacity={0.5} strokeWidth={2.5} dot={{ r: 3.5, fill: '#FFF', stroke: '#000', strokeWidth: 1.5 }} />
                                             </RadarChart>
                                         </ResponsiveContainer>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-1.5 pt-2.5 border-t border-slate-100 mt-2.5 text-[9px] font-bold uppercase">
-                                        {radarData.map(item => (
-                                            <div key={item.subject} className="flex justify-between items-center bg-[#EAEFF5] px-2 py-0.5 rounded border border-black">
-                                                <span className="truncate max-w-[70px] text-black/70">{item.subject}</span>
-                                                <span className="bg-black text-white px-1 rounded-sm text-[8px] font-black">{item.value}%</span>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2.5 border-t-2 border-black/10 mt-2.5 text-[10px] font-black uppercase">
+                                        {radarData.map((item, idx) => (
+                                            <div 
+                                                key={item.subject} 
+                                                className={`flex justify-between items-center bg-sidebar px-2.5 py-1.5 rounded-lg border-2 border-black shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] ${
+                                                    idx === radarData.length - 1 && radarData.length % 2 !== 0 ? 'sm:col-span-2' : ''
+                                                }`}
+                                            >
+                                                <span className="text-black dark:text-white font-extrabold text-[10px] leading-tight pr-1.5">{item.subject}</span>
+                                                <span className="bg-black text-white px-1.5 py-0.5 rounded text-[9px] font-black shrink-0">{item.value}%</span>
                                             </div>
                                         ))}
                                     </div>
@@ -399,19 +362,19 @@ export default function Monitoring() {
                         </div>
 
                         {/* ---------- ROW 3: COMPLIANCE HEATMAP ---------- */}
-                        <div className="bg-white border-2 border-black p-5 rounded-2xl shadow-[4px_4px_0px_0px_#000]">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 border-b border-slate-100 pb-3">
+                        <div className="bg-card border-3 border-black p-5 rounded-2xl shadow-[4px_4px_0px_0px_#000]">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 border-b-2 border-black/10 pb-3">
                                 <div>
-                                    <h3 className="text-sm font-black uppercase">Matriks Kepatuhan Rutinitas Harian</h3>
-                                    <p className="text-[11px] font-bold text-black/40">VISUALISASI KONSISTENSI AGENDA PROGRAM PER HARI</p>
+                                    <h3 className="text-sm font-black uppercase text-black dark:text-white">Matriks Kepatuhan Rutinitas Harian</h3>
+                                    <p className="text-[10px] font-bold text-muted-foreground uppercase">Visualisasi Konsistensi Agenda Program Per Hari</p>
                                 </div>
-                                <div className="flex items-center gap-3 text-[10px] font-black uppercase">
+                                <div className="flex items-center gap-3 text-[10px] font-black uppercase text-black dark:text-white">
                                     <div className="flex items-center gap-1.5">
                                         <div className="w-3.5 h-3.5 bg-black border border-black rounded" />
                                         <span>Selesai</span>
                                     </div>
                                     <div className="flex items-center gap-1.5">
-                                        <div className="w-3.5 h-3.5 bg-white border-2 border-black rounded" />
+                                        <div className="w-3.5 h-3.5 bg-muted border-2 border-black rounded" />
                                         <span>Kosong</span>
                                     </div>
                                 </div>
@@ -419,8 +382,8 @@ export default function Monitoring() {
 
                             <div className="overflow-x-auto pb-1">
                                 <div className="inline-flex items-start gap-2.5 p-0.5 min-w-max">
-                                    {/* Row Labels (Hari) */}
-                                    <div className="flex flex-col gap-1.5 pt-5 font-black text-[9px] w-7 text-left text-black/50">
+                                    {/* Row Labels */}
+                                    <div className="flex flex-col gap-1.5 pt-5 font-black text-[9px] w-7 text-left text-muted-foreground">
                                         {dayLabels.map((day, i) => (
                                             <div key={i} className="h-3.5 flex items-center">{day}</div>
                                         ))}
@@ -440,10 +403,10 @@ export default function Monitoring() {
                                                             key={d}
                                                             className={`w-3.5 h-3.5 transition-all cursor-pointer border-2 border-black rounded-[4px] ${
                                                                 cell?.done
-                                                                    ? 'bg-black hover:bg-slate-800'
+                                                                    ? 'bg-success hover:bg-lime-400'
                                                                     : w + 1 <= 12
-                                                                        ? 'bg-white hover:bg-slate-100'
-                                                                        : 'bg-slate-100 border-dashed border-slate-300'
+                                                                        ? 'bg-muted hover:bg-muted/80'
+                                                                        : 'bg-muted/30 border-dashed border-black/30'
                                                             }`}
                                                             title={`Minggu ${w + 1}, Hari ke-${d + 1}: ${cell?.done ? 'Selesai' : 'Tidak Ada Aktivitas'}`}
                                                         />

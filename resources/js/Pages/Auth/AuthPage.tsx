@@ -1,56 +1,15 @@
 import React, { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
+import { Sparkles, ArrowRight, Plus, Minus } from 'lucide-react';
+import Button from '../../Components/Buttons/Button';
+import TextInput from '../../Components/Inputs/TextInput';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 interface ChildData {
     name: string;
     weight: string;
     height: string;
 }
 
-// ─── Icons ────────────────────────────────────────────────────────────────────
-const PlantIcon = ({ size = 24 }: { size?: number }) => (
-    <svg viewBox="0 0 24 24" fill="currentColor" width={size} height={size}>
-        <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20C19 20 22 3 22 3c-1 2-8 2-8 2s-2 0-3 2c1-1 3-1 3-1S17 8 17 8z" />
-    </svg>
-);
-
-const SpinnerIcon = () => (
-    <svg className="animate-spin w-4 h-4 text-black" fill="none" viewBox="0 0 24 24">
-        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-    </svg>
-);
-
-// ─── Reusable Field (Simpel & Organik) ────────────────────────────────────────
-const SimpleField = ({
-    label, type = 'text', placeholder, value, onChange,
-}: {
-    label: string;
-    type?: string;
-    placeholder?: string;
-    value?: string;
-    onChange?: (v: string) => void;
-}) => (
-    <div className="space-y-1">
-        <label className="block text-[0.7rem] font-black tracking-wider text-black uppercase pl-1">
-            {label}
-        </label>
-        <input
-            type={type}
-            placeholder={placeholder}
-            value={value}
-            onChange={e => onChange?.(e.target.value)}
-            className="w-full bg-[#fbfbf4] border-2 border-black text-black font-bold
-                       placeholder:text-gray-400 rounded-2xl px-4 py-2.5 text-sm outline-none
-                       shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] focus:bg-white
-                       focus:translate-x-[1px] focus:translate-y-[1px] focus:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]
-                       transition-all duration-200"
-        />
-    </div>
-);
-
-// ─── Main Page ────────────────────────────────────────────────────────────────
 export default function AuthPage() {
     const [isLogin, setIsLogin] = useState(true);
 
@@ -65,9 +24,8 @@ export default function AuthPage() {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
 
-    // ── Child Helpers ─────────────────────────────────────────────────────────
     const changeChildCount = (delta: number) => {
-        const next = Math.min(3, Math.max(1, childCount + delta)); // Dibatasi maks 3 agar simpel & hemat ruang
+        const next = Math.min(3, Math.max(1, childCount + delta));
         setChildCount(next);
         setChildren(prev => {
             if (next > prev.length) {
@@ -83,7 +41,6 @@ export default function AuthPage() {
     const updateChild = (i: number, field: keyof ChildData, val: string) =>
         setChildren(prev => prev.map((c, idx) => (idx === i ? { ...c, [field]: val } : c)));
 
-    // ── Submit Handler ────────────────────────────────────────────────────────
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -101,136 +58,170 @@ export default function AuthPage() {
                         router.get('/');
                     }
                 } else {
-                    setIsLogin(true); // Setelah daftar pindah ke login secara smooth
+                    setIsLogin(true);
                 }
-            }, 1000);
-        }, 1200);
+            }, 800);
+        }, 1000);
     };
 
     return (
-        <>
-            <Head title={isLogin ? 'Masuk — EmoGROW' : 'Daftar — EmoGROW'}>
-                <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&family=Manrope:wght@600;800&display=swap" rel="stylesheet" />
-            </Head>
+        <div className="min-h-screen flex items-center justify-center bg-background p-4 font-sans antialiased text-black dark:text-slate-100 select-none">
+            <Head title={isLogin ? 'Masuk - EmoGROW' : 'Daftar Akun - EmoGROW'} />
 
-            <div className="min-h-screen flex items-center justify-center bg-[#fefbe8] p-4 font-['Manrope',sans-serif]">
+            {/* Main Container Card */}
+            <div className="w-full max-w-md bg-card border-3 border-black rounded-3xl p-6 md:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden">
                 
-                {/* ─── Main Container Card ─── */}
-                <div className="w-full max-w-md bg-white border-4 border-black rounded-[2.5rem] p-6 md:p-8 
-                                shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 relative overflow-hidden">
+                {/* Header Logo */}
+                <div className="flex flex-col items-center text-center mb-6">
+                    <div className="w-14 h-14 bg-primary text-black border-2 border-black flex items-center justify-center rounded-2xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] mb-3">
+                        <Sparkles className="w-7 h-7 stroke-[2.5]" />
+                    </div>
+                    <h1 className="text-3xl font-black uppercase tracking-tight text-black dark:text-white">EmoGROW</h1>
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide mt-1">
+                        {isLogin ? 'Masuk untuk memantau tumbuh kembang si kecil' : 'Lengkapi data awal keluarga Anda'}
+                    </p>
+                </div>
+
+                {/* Form Area */}
+                <form onSubmit={handleSubmit} className="space-y-4">
                     
-                    {/* Header Logo (Simpel & Centered) */}
-                    <div className="flex flex-col items-center text-center mb-6">
-                        <div className="w-12 h-12 bg-[#a3e635] border-2 border-black flex items-center justify-center text-black rounded-2xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] mb-2">
-                            <PlantIcon />
-                        </div>
-                        <h1 className="text-2xl font-black uppercase tracking-tight text-black">EmoGROW</h1>
-                    </div>
+                    <TextInput 
+                        label="Alamat Email" 
+                        type="email" 
+                        placeholder="contoh: ibu.sari@email.com" 
+                        value={email} 
+                        onChange={e => setEmail(e.target.value)} 
+                        required
+                    />
 
-                    {/* ─── Toggle Teks Atas dengan Animasi Fade ─── */}
-                    <div className="text-center h-7 relative mb-4">
-                        <p className={`text-xs font-extrabold uppercase tracking-wide text-gray-500 transition-all duration-300 absolute inset-x-0
-                                      ${isLogin ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
-                            Masuk untuk memantau Si Kecil
-                        </p>
-                        <p className={`text-xs font-extrabold uppercase tracking-wide text-gray-500 transition-all duration-300 absolute inset-x-0
-                                      ${!isLogin ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
-                            Lengkapi data singkat keluarga Anda
-                        </p>
-                    </div>
+                    <TextInput 
+                        label="Kata Sandi" 
+                        type="password" 
+                        placeholder="••••••••" 
+                        value={password} 
+                        onChange={e => setPassword(e.target.value)} 
+                        required
+                    />
 
-                    {/* ─── Form Area dengan Animasi Smooth Height & Content Transition ─── */}
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        
-                        {/* Area input bersama (Email & Password selalu ada) */}
-                        <SimpleField label="Email" type="email" placeholder="nama@email.com" value={email} onChange={setEmail} />
-                        <SimpleField label="Password" type="password" placeholder="••••••••" value={password} onChange={setPassword} />
-
-                        {/* ─── Dynamic Register Fields (Mulus muncul dari bawah & fade-in) ─── */}
-                        <div className={`space-y-4 transition-all duration-500 ease-in-out overflow-hidden
-                                        ${!isLogin ? 'max-h-[450px] opacity-100 pt-1' : 'max-h-0 opacity-0 pointer-events-none'}`}>
-                            
+                    {/* Dynamic Register Fields */}
+                    {!isLogin && (
+                        <div className="space-y-4 pt-1">
                             <div className="grid grid-cols-2 gap-3">
-                                <SimpleField label="Nama Ibu" placeholder="Nama Ibu" value={namaIbu} onChange={setNamaIbu} />
-                                <SimpleField label="Nama Ayah" placeholder="Nama Ayah" value={namaAyah} onChange={setNamaAyah} />
+                                <TextInput 
+                                    label="Nama Ibu" 
+                                    placeholder="Nama Ibu" 
+                                    value={namaIbu} 
+                                    onChange={e => setNamaIbu(e.target.value)} 
+                                    required={!isLogin}
+                                />
+                                <TextInput 
+                                    label="Nama Ayah" 
+                                    placeholder="Nama Ayah" 
+                                    value={namaAyah} 
+                                    onChange={e => setNamaAyah(e.target.value)} 
+                                />
                             </div>
 
                             {/* Stepper Jumlah Anak */}
-                            <div className="space-y-1">
-                                <label className="block text-[0.7rem] font-black tracking-wider text-black uppercase pl-1">Jumlah Anak</label>
-                                <div className="flex items-center bg-[#fbfbf4] border-2 border-black p-1.5 rounded-2xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                            <div className="space-y-1.5">
+                                <label className="block text-xs font-black uppercase tracking-wide text-black dark:text-white pl-1">Jumlah Anak</label>
+                                <div className="flex items-center justify-between bg-sidebar border-2 border-black p-2.5 rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                                     <button
-                                        type="button" onClick={() => changeChildCount(-1)} disabled={childCount <= 1}
-                                        className="w-8 h-8 border-2 border-black bg-[#ffdfdf] font-black rounded-xl disabled:opacity-30 active:scale-95 transition-all"
+                                        type="button" 
+                                        onClick={() => changeChildCount(-1)} 
+                                        disabled={childCount <= 1}
+                                        className="w-8 h-8 rounded-lg border-2 border-black bg-muted flex items-center justify-center text-foreground font-black hover:bg-card disabled:opacity-30 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer"
+                                        aria-label="Kurangi Jumlah Anak"
                                     >
-                                        −
+                                        <Minus className="w-4 h-4 stroke-[3]" />
                                     </button>
-                                    <span className="flex-1 text-center font-black text-sm">{childCount} Anak</span>
+                                    <span className="font-black text-sm uppercase text-foreground">{childCount} Anak</span>
                                     <button
-                                        type="button" onClick={() => changeChildCount(1)} disabled={childCount >= 3}
-                                        className="w-8 h-8 border-2 border-black bg-[#a3e635] font-black rounded-xl disabled:opacity-30 active:scale-95 transition-all"
+                                        type="button" 
+                                        onClick={() => changeChildCount(1)} 
+                                        disabled={childCount >= 3}
+                                        className="w-8 h-8 rounded-lg bg-success border-2 border-black text-black flex items-center justify-center font-black disabled:opacity-30 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer"
+                                        aria-label="Tambah Jumlah Anak"
                                     >
-                                        +
+                                        <Plus className="w-4 h-4 stroke-[3]" />
                                     </button>
                                 </div>
                             </div>
 
-                            {/* Dynamic Child Cards Container */}
-                            <div className="max-h-[160px] overflow-y-auto space-y-3 pr-1 pt-1">
+                            {/* Child Inputs Container */}
+                            <div className="max-h-[160px] overflow-y-auto space-y-3 pr-1">
                                 {children.map((child, i) => (
-                                    <div key={i} className="bg-[#fef08a] border-2 border-black p-3 rounded-2xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] space-y-2">
+                                    <div key={i} className="bg-card-subtle border-2 border-black p-3.5 rounded-xl space-y-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                                         <input
-                                            type="text" placeholder={`Nama Anak ke-${i + 1}`} value={child.name}
+                                            type="text" 
+                                            placeholder={`Nama Panggilan Anak ke-${i + 1}`} 
+                                            value={child.name}
                                             onChange={e => updateChild(i, 'name', e.target.value)}
-                                            className="w-full bg-white border-2 border-black px-3 py-1.5 rounded-xl text-xs font-bold outline-none"
+                                            className="w-full bg-sidebar border-2 border-black px-3 py-2 rounded-lg text-xs font-bold text-foreground outline-none"
+                                            required={!isLogin}
                                         />
                                         <div className="grid grid-cols-2 gap-2">
                                             <input
-                                                type="number" step="0.1" placeholder="Berat (kg)" value={child.weight}
+                                                type="number" 
+                                                step="0.1" 
+                                                placeholder="Berat Badan (kg)" 
+                                                value={child.weight}
                                                 onChange={e => updateChild(i, 'weight', e.target.value)}
-                                                className="bg-white border-2 border-black px-3 py-1.5 rounded-xl text-xs font-bold outline-none"
+                                                className="bg-sidebar border-2 border-black px-3 py-2 rounded-lg text-xs font-bold text-foreground outline-none"
                                             />
                                             <input
-                                                type="number" step="1" placeholder="Tinggi (cm)" value={child.height}
+                                                type="number" 
+                                                step="1" 
+                                                placeholder="Tinggi Badan (cm)" 
+                                                value={child.height}
                                                 onChange={e => updateChild(i, 'height', e.target.value)}
-                                                className="bg-white border-2 border-black px-3 py-1.5 rounded-xl text-xs font-bold outline-none"
+                                                className="bg-sidebar border-2 border-black px-3 py-2 rounded-lg text-xs font-bold text-foreground outline-none"
                                             />
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
+                    )}
 
-                        {/* Remember Me Box (Hanya tampil saat Login) */}
-                        <div className={`flex items-center gap-2 pt-1 transition-all duration-300
-                                        ${isLogin ? 'opacity-100 max-h-6' : 'opacity-0 max-h-0 pointer-events-none'}`}>
-                            <input type="checkbox" id="remember" className="w-4 h-4 rounded-md border-2 border-black bg-white cursor-pointer checked:bg-black accent-black" />
-                            <label htmlFor="remember" className="text-xs font-black uppercase tracking-wider text-black cursor-pointer">Ingat Saya</label>
+                    {/* Remember Me Box */}
+                    {isLogin && (
+                        <div className="flex items-center gap-2 pt-1">
+                            <input 
+                                type="checkbox" 
+                                id="remember" 
+                                className="w-4 h-4 rounded border-2 border-black text-black dark:text-white accent-black cursor-pointer" 
+                            />
+                            <label htmlFor="remember" className="text-xs font-black uppercase text-muted-foreground cursor-pointer">
+                                Ingat saya di perangkat ini
+                            </label>
                         </div>
+                    )}
 
-                        {/* Submit Button */}
+                    {/* Submit Button */}
+                    <Button
+                        type="submit" 
+                        variant="primary"
+                        size="lg"
+                        isLoading={loading}
+                        className="w-full mt-2"
+                    >
+                        {success ? '✓ Berhasil!' : isLogin ? 'Masuk Sekarang' : 'Daftar Akun Baru'}
+                        {!loading && !success && <ArrowRight className="w-4 h-4 ml-1.5 stroke-[3]" />}
+                    </Button>
+
+                    {/* Toggle Switcher */}
+                    <div className="text-center pt-3">
                         <button
-                            type="submit" disabled={loading || success}
-                            className={`w-full py-3 border-2 border-black rounded-2xl text-sm font-black uppercase tracking-wider 
-                                       shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]
-                                       active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all duration-150 mt-2
-                                       ${success ? 'bg-[#86efac]' : 'bg-[#a3e635]'}`}
+                            type="button" 
+                            onClick={() => setIsLogin(!isLogin)}
+                            className="text-xs font-black uppercase text-black dark:text-white hover:underline cursor-pointer"
                         >
-                            {loading ? <><SpinnerIcon /> Memproses...</> : success ? '✓ Berhasil!' : isLogin ? 'Masuk' : 'Daftar'}
+                            {isLogin ? 'Belum punya akun? Daftar gratis →' : 'Sudah memiliki akun? Masuk →'}
                         </button>
-
-                        {/* Toggle Switcher Link di Bawah */}
-                        <div className="text-center pt-2">
-                            <button
-                                type="button" onClick={() => setIsLogin(!isLogin)}
-                                className="text-xs font-extrabold uppercase tracking-wide text-black hover:underline active:scale-95 transition-all duration-150"
-                            >
-                                {isLogin ? 'Belum punya akun? Daftar →' : 'Sudah ada akun? Masuk →'}
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
-        </>
+        </div>
     );
 }

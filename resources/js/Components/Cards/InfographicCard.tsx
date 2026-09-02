@@ -1,5 +1,4 @@
 import React from 'react';
-import Badge from '../Badges/Badge';
 
 export interface InfographicStat {
     value: string | number;
@@ -25,30 +24,33 @@ export default function InfographicCard({
     className = ''
 }: InfographicCardProps) {
     return (
-        <div className={`rounded-2xl border border-border/60 shadow-sm overflow-hidden flex flex-col bg-card ${className}`}>
+        <div className={`rounded-2xl border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col bg-card select-none ${className}`}>
             {/* Header */}
-            <div className="px-6 py-5 flex justify-between items-center border-b border-border/40">
-                <span className="text-body-bold text-netral">{title}</span>
+            <div className="px-6 py-4 flex justify-between items-center border-b-3 border-black bg-card">
+                <span className="text-base font-black text-black dark:text-white uppercase tracking-tight">{title}</span>
                 {tag && (
-                    <div className="px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
-                        <span className="text-small-text font-bold text-primary">{tag}</span>
+                    <div className="px-2.5 py-0.5 bg-primary text-black rounded-lg border-2 border-black font-black text-xs uppercase shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
+                        <span>{tag}</span>
                     </div>
                 )}
             </div>
 
             {/* Image Section */}
-            <div className="relative w-full bg-muted overflow-hidden flex items-center justify-center p-8">
+            <div className="relative w-full bg-sidebar overflow-hidden flex items-center justify-center p-6 md:p-8">
                 <img 
                     src={image} 
                     alt={title} 
-                    className="max-w-full h-auto max-h-[300px] object-cover rounded-2xl shadow-sm" 
+                    className="max-w-full h-auto max-h-[300px] object-cover rounded-xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]" 
+                    onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=800&q=80';
+                    }}
                 />
             </div>
 
             {/* Optional Caption */}
             {caption && (
-                <div className="px-8 py-5 border-t border-border/40">
-                    <p className="text-body-thin text-netral/80 text-center leading-relaxed">
+                <div className="px-6 py-4 border-t-3 border-black bg-card">
+                    <p className="text-xs md:text-sm text-black dark:text-white text-center leading-relaxed font-bold">
                         {caption}
                     </p>
                 </div>
@@ -56,16 +58,16 @@ export default function InfographicCard({
 
             {/* Optional Stats Grid */}
             {stats && stats.length > 0 && (
-                <div className={`grid grid-cols-${stats.length} border-t border-border/40`}>
+                <div className={`grid grid-cols-1 sm:grid-cols-${stats.length} border-t-3 border-black divide-y-2 sm:divide-y-0 sm:divide-x-2 divide-black bg-card`}>
                     {stats.map((stat, idx) => (
                         <div 
                             key={idx} 
-                            className={`px-4 py-6 flex flex-col items-center justify-center text-center ${idx !== stats.length - 1 ? 'border-r border-border/40' : ''}`}
+                            className="px-4 py-5 flex flex-col items-center justify-center text-center"
                         >
-                            <span className={`text-[24px] font-bold ${stat.colorClass || 'text-netral'} mb-1`}>
+                            <span className={`text-2xl font-black ${stat.colorClass || 'text-black dark:text-white'} mb-0.5`}>
                                 {stat.value}
                             </span>
-                            <span className="text-small-text text-netral/60 uppercase tracking-widest font-bold">
+                            <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-extrabold">
                                 {stat.label}
                             </span>
                         </div>
